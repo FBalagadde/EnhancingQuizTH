@@ -5,6 +5,8 @@
 //  Created by Pasan Premaratne on 3/9/16.
 //  Copyright © 2016 Treehouse. All rights reserved.
 //
+//  Modified by Frederick Balagadde on 5/29/2017
+//  Project 2 - iOS Development TechDegree
 
 import UIKit
 import GameKit
