@@ -34,14 +34,13 @@ struct TriviaQuestionGenerator
         ["Question": "What is the capitol City of New York City?",                                       "Ans 1": "New York City",          "Ans 2": "Philadelphia",          "Ans 3": "Baton Rouge",     "Ans 4": "Albany",            "Cor Ans": "4"],
         ["Question": "What kind of weapon is a falchion?",                                               "Ans 1": "A dagger",               "Ans 2": "A fighting stick",      "Ans 3": "A knife",         "Ans 4": "A sword",           "Cor Ans": "1"]]
     
-    func newDisplayQuestion() -> [String]
+    func newDisplayQuestion() -> [String: String]
     {
         let indexOfSelectQuestion: Int = GKRandomSource.sharedRandom().nextInt(upperBound: triviaQuestions.count)
-        let questionDictionary = triviaQuestions[indexOfSelectQuestion]
-        var questionArray: [String] = []
+        //let questionDictionary = triviaQuestions[indexOfSelectQuestion]
         
         
-        return questionArray
+        return triviaQuestions[indexOfSelectQuestion]
     }
     
 }

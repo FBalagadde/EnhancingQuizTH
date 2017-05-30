@@ -28,18 +28,67 @@ class ViewController: UIViewController {
         ["Question": "All ducks are birds", "Answer": "True"]
     ]
     
+    
+    @IBOutlet weak var ans1Button: UIButton!
+    @IBOutlet weak var ans2Button: UIButton!
+    @IBOutlet weak var ans3Button: UIButton!
+    @IBOutlet weak var ans4Button: UIButton!
+    @IBOutlet weak var nextButton: UIButton!
+    @IBOutlet weak var timeLabel: UILabel!
+    
+    
     @IBOutlet weak var questionField: UILabel!
-    @IBOutlet weak var trueButton: UIButton!
-    @IBOutlet weak var falseButton: UIButton!
+    @IBOutlet weak var ansVerify: UILabel!
+    @IBOutlet weak var scoreLabel: UILabel!
+    @IBOutlet weak var quizStatusLabel: UILabel!
+    
+    @IBOutlet weak var questionFrame: UIView!
+    @IBOutlet weak var answersFrame: UIView!
+    
+    
+    var corAnswer: String = ""
+
+    
+    
     @IBOutlet weak var playAgainButton: UIButton!
+    
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadGameStartSound()
-        // Start game
-        playGameStartSound()
+
+        initializeApp()
         displayQuestion()
+        
+        
+        //let question: [String: String] = TriviaQuestionGenerator().newDisplayQuestion()
+        
+     
+        
+      
+    }
+    
+    func initializeApp()
+    {
+        /////loadGameStartSound()
+        // Start game
+        /////playGameStartSound()
+        
+        //Initial conditions
+        ansVerify.isHidden = true
+        scoreLabel.isHidden = true
+        nextButton.isHidden = true
+        quizStatusLabel.isHidden = true
+        
+        let cornerRadius: CGFloat = 10
+        ans1Button.layer.cornerRadius = cornerRadius
+        ans2Button.layer.cornerRadius = cornerRadius
+        ans3Button.layer.cornerRadius = cornerRadius
+        ans4Button.layer.cornerRadius = cornerRadius
+        nextButton.layer.cornerRadius = cornerRadius
+        questionFrame.layer.cornerRadius = cornerRadius
+        answersFrame.layer.cornerRadius = cornerRadius
+        timeLabel.text = "15 sec"
     }
 
     override func didReceiveMemoryWarning() {
@@ -47,13 +96,37 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    func displayQuestion() {
-        indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextInt(upperBound: trivia.count)
+    func displayQuestion()
+    {
+        //Populate Question Field and Answer Fields with question information
+        for (key, value) in TriviaQuestionGenerator().newDisplayQuestion()
+        {
+            switch key
+            {
+            case "Question": questionField.text = value
+            case "Ans 1": ans1Button.setTitle(value, for: UIControlState())
+            case "Ans 2": ans2Button.setTitle(value, for: UIControlState())
+            case "Ans 3": ans3Button.setTitle(value, for: UIControlState())
+            case "Ans 4": ans4Button.setTitle(value, for: UIControlState())
+            case "Cor Ans": corAnswer = value
+            default: print("unknown option")
+                
+            }
+        }
+        
+        ansVerify.isHidden = true
+        scoreLabel.isHidden = true
+        nextButton.isHidden = true
+        //quizStatusLabel.isHidden = true
+        
+        /*indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextInt(upperBound: trivia.count)
         let questionDictionary = trivia[indexOfSelectedQuestion]
         questionField.text = questionDictionary["Question"]
         playAgainButton.isHidden = true
+ */
     }
     
+    /*
     func displayScore() {
         // Hide the answer buttons
         trueButton.isHidden = true
@@ -65,6 +138,15 @@ class ViewController: UIViewController {
         questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
         
     }
+    
+    
+    @IBAction func ans4Button() {
+    }
+    
+    
+    @IBAction func ans3Button() {
+    }
+    
     
     @IBAction func checkAnswer(_ sender: UIButton) {
         // Increment the questions asked counter
@@ -128,5 +210,6 @@ class ViewController: UIViewController {
     func playGameStartSound() {
         AudioServicesPlaySystemSound(gameSound)
     }
+ */
 }
 
