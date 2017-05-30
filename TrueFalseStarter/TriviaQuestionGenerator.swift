@@ -10,7 +10,11 @@ import GameKit
 
 struct TriviaQuestionGenerator
 {
-    //var indexOfSelectQuestion: Int = 0;
+    var selectedQuestion: [String: String] = [:]
+    var correctQuestions: Int = 0
+    var numberOfAnswerOptions: Int = 0 //will increment this later
+    var questionsAsked: Int = 0
+    var questionsPerRound = 4
     
     let triviaQuestions: [[String : String]] = [
         ["Question": "This was the only US President to serve more than two consecutive terms.",         "Ans 1": "George Washington",      "Ans 2": "Franklin D. Roosevelt", "Ans 3": "Woodrow Wilson",  "Ans 4": "Andrew Jackson",    "Cor Ans": "2"],
@@ -32,15 +36,24 @@ struct TriviaQuestionGenerator
         ["Question": "Who was the legendary Benedictine monk who invented champagne?",                   "Ans 1": "Benedict of Chardonnay", "Ans 2": "Dom Perignon",          "Ans 3": "Francis of Asisi","Ans 4": "Martin Luther",     "Cor Ans": "2"],
         ["Question": "What is the diameter of Earth?",                                                   "Ans 1": "10,000 miles",           "Ans 2": "8,000 miles",           "Ans 3": "60,000 miles",    "Ans 4": "100,000 miles",     "Cor Ans": "2"],
         ["Question": "What is the capitol City of New York City?",                                       "Ans 1": "New York City",          "Ans 2": "Philadelphia",          "Ans 3": "Baton Rouge",     "Ans 4": "Albany",            "Cor Ans": "4"],
-        ["Question": "What kind of weapon is a falchion?",                                               "Ans 1": "A dagger",               "Ans 2": "A fighting stick",      "Ans 3": "A knife",         "Ans 4": "A sword",           "Cor Ans": "1"]]
+        ["Question": "What kind of weapon is a falchion?",                                               "Ans 1": "A dagger",               "Ans 2": "A fighting stick",      "Ans 3": "A knife",         "Ans 4": "A sword",           "Cor Ans": "4"]]
     
-    func newDisplayQuestion() -> [String: String]
+    mutating func newDisplayQuestion()
     {
         let indexOfSelectQuestion: Int = GKRandomSource.sharedRandom().nextInt(upperBound: triviaQuestions.count)
         //let questionDictionary = triviaQuestions[indexOfSelectQuestion]
         
-        
-        return triviaQuestions[indexOfSelectQuestion]
+        selectedQuestion = triviaQuestions[indexOfSelectQuestion]
+    }
+    
+    mutating func incrementCorrectAnswers()
+    {
+        correctQuestions += 1
+    }
+    
+    mutating func incrementQuestionsAsked()
+    {
+         questionsAsked += 1
     }
     
 }
