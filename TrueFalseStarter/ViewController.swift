@@ -31,9 +31,10 @@ class ViewController: UIViewController {
     ]
     
     
-    var randomlySelectedQuestion: TriviaQuestionGenerator = TriviaQuestionGenerator()
+    var question: TriviaQuestionGenerator = TriviaQuestionGenerator()
     var timer = Timer()
-    var counter: Double = 0.0
+    var counter: Double = 15.0
+    
     var isRunning: Bool = false
     
     @IBOutlet weak var ans1Button: UIButton!
@@ -42,6 +43,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var ans4Button: UIButton!
     @IBOutlet weak var nextMoveButton: UIButton!
     
+    @IBOutlet weak var progressBar: UIProgressView!
+    
     //@IBOutlet weak var nextButton: UIButton!
     
     
@@ -49,12 +52,13 @@ class ViewController: UIViewController {
     @IBOutlet weak var ansVerify: UILabel!
     @IBOutlet weak var scoreLabel: UILabel!
     @IBOutlet weak var quizStatusLabel: UILabel!
-    
     @IBOutlet weak var timerLabel: UILabel!
+    @IBOutlet weak var questionNumberLabel: UILabel!
     
     @IBOutlet weak var questionFrame: UIView!
-    @IBOutlet weak var answersFrame: UIView!
     
+    @IBOutlet weak var answersFrame: UIView!
+   
     
     var corAnswer: String = ""
 
@@ -98,7 +102,8 @@ class ViewController: UIViewController {
         answersFrame.layer.cornerRadius = cornerRadius
         ansVerify.layer.cornerRadius = cornerRadius
         scoreLabel.layer.cornerRadius = cornerRadius
-        timerLabel.text = "15 sec"
+        timerLabel.text = "15.0"
+        progressBar.progress = 0.0
     }
 
     override func didReceiveMemoryWarning() {
@@ -113,9 +118,9 @@ class ViewController: UIViewController {
         switch sender
         {
         case ans1Button:
-            if randomlySelectedQuestion.selectedQuestion["Cor Ans"] == "1" {
+            if question.selectedQuestion["Cor Ans"] == "1" {
                 ansVerify.text = "Correct!" //convert into array
-                randomlySelectedQuestion.incrementCorrectAnswers()
+                question.incrementCorrectAnswers()
             } else {
                 ansVerify.text = "Sorry, that's not it" //convert into array
             }
@@ -132,19 +137,20 @@ class ViewController: UIViewController {
             
             nextMoveButton.isEnabled = true
             nextMoveButton.isHidden = false
+            nextMoveButton.alpha = 1.0
             nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
             ansVerify.isHidden =  false
             
-            quizStatusLabel.text = "You have completed \(randomlySelectedQuestion.questionsAsked)/\(randomlySelectedQuestion.questionsPerRound) questions"
+            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
             quizStatusLabel.isHidden = false
             
             timer.invalidate() //This pauses the timer
-            timerLabel.text = "\(counter)"
+            timerLabel.text = String(format: "%.1f", counter)
             
         case ans2Button:
-            if randomlySelectedQuestion.selectedQuestion["Cor Ans"] == "2" {
+            if question.selectedQuestion["Cor Ans"] == "2" {
                 ansVerify.text = "Correct!" //convert into array
-                randomlySelectedQuestion.incrementCorrectAnswers()
+                question.incrementCorrectAnswers()
             } else {
                 ansVerify.text = "Sorry, that's not it" //convert into array
             }
@@ -160,19 +166,20 @@ class ViewController: UIViewController {
             
             nextMoveButton.isEnabled = true
             nextMoveButton.isHidden = false
+            nextMoveButton.alpha = 1.0
             nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
             ansVerify.isHidden =  false
             
-            quizStatusLabel.text = "You have completed \(randomlySelectedQuestion.questionsAsked)/\(randomlySelectedQuestion.questionsPerRound) questions"
+            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
             quizStatusLabel.isHidden = false
             
             timer.invalidate() //This pauses the timer
-            timerLabel.text = "\(counter)"
+            timerLabel.text = String(format: "%.1f", counter)
             
         case ans3Button:
-            if randomlySelectedQuestion.selectedQuestion["Cor Ans"] == "3" {
+            if question.selectedQuestion["Cor Ans"] == "3" {
                 ansVerify.text = "Correct!" //convert into array
-                randomlySelectedQuestion.incrementCorrectAnswers()
+                question.incrementCorrectAnswers()
             } else {
                 ansVerify.text = "Sorry, that's not it" //convert into array
             }
@@ -188,19 +195,20 @@ class ViewController: UIViewController {
             
             nextMoveButton.isEnabled = true
             nextMoveButton.isHidden = false
+            nextMoveButton.alpha = 1.0
             nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
             ansVerify.isHidden =  false
             
-            quizStatusLabel.text = "You have completed \(randomlySelectedQuestion.questionsAsked)/\(randomlySelectedQuestion.questionsPerRound) questions"
+            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
             quizStatusLabel.isHidden = false
             
             timer.invalidate() //This pauses the timer
-            timerLabel.text = "\(counter)"
+            timerLabel.text = String(format: "%.1f", counter)
             
         case ans4Button:
-            if randomlySelectedQuestion.selectedQuestion["Cor Ans"] == "4" {
+            if question.selectedQuestion["Cor Ans"] == "4" {
                 ansVerify.text = "Correct!" //convert into array
-                randomlySelectedQuestion.incrementCorrectAnswers()
+                question.incrementCorrectAnswers()
             } else {
                 ansVerify.text = "Sorry, that's not it" //convert into array
             }
@@ -216,17 +224,18 @@ class ViewController: UIViewController {
             
             nextMoveButton.isEnabled = true
             nextMoveButton.isHidden = false
+            nextMoveButton.alpha = 1.0
             nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
             ansVerify.isHidden =  false
             
-            quizStatusLabel.text = "You have completed \(randomlySelectedQuestion.questionsAsked)/\(randomlySelectedQuestion.questionsPerRound) questions"
+            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
             quizStatusLabel.isHidden = false
             
             timer.invalidate() //This pauses the timer
-            timerLabel.text = "\(counter)"
+            timerLabel.text = String(format: "%.1f", counter)
             
         case nextMoveButton:
-            if randomlySelectedQuestion.questionsAsked < randomlySelectedQuestion.questionsPerRound
+            if question.questionsAsked < question.questionsPerRound
             {
                 //loadNextRoundWithDelay(seconds: 5) //will change this to variable
                  displayQuestion()
@@ -237,6 +246,7 @@ class ViewController: UIViewController {
             nextMoveButton.isEnabled = false
             //nextMoveButton.isHidden = true
             nextMoveButton.setTitle("", for: UIControlState()) //change later to variable
+            nextMoveButton.alpha = 0.5
 
            
         default: ansVerify.text = "Indeterminate" //convert into array
@@ -245,7 +255,7 @@ class ViewController: UIViewController {
         }
         
         
-        scoreLabel.text = "Score: \(randomlySelectedQuestion.correctQuestions)"
+        scoreLabel.text = "Score: \(question.correctQuestions)"
         
         scoreLabel.isHidden = false
         
@@ -301,8 +311,45 @@ class ViewController: UIViewController {
     
     func updateTimer()
     {
-        counter += 0.1
+        counter -= 0.1
+        progressBar.progress += 0.1/15.0
+        
         timerLabel.text = String(format: "%.1f", counter)
+        
+        
+        
+        if counter <= 0.0
+        {
+            
+            timer.invalidate() //This pauses the timer
+            counter = 0.0
+            progressBar.progress = 1.0
+            timerLabel.text = String(format: "%.1f", counter)
+            ansVerify.text = "Sorry, Time is up!" //convert into array
+            
+            ans1Button.alpha = 0.5
+            ans2Button.alpha = 0.5
+            ans3Button.alpha = 0.5
+            ans4Button.alpha = 0.5
+            
+            ans1Button.isEnabled = false
+            ans2Button.isEnabled = false
+            ans3Button.isEnabled = false
+            ans4Button.isEnabled = false
+            
+            nextMoveButton.isEnabled = true
+            nextMoveButton.isHidden = false
+            nextMoveButton.alpha = 1.0
+            nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
+            ansVerify.isHidden =  false
+            scoreLabel.text = "Score: \(question.correctQuestions)"
+            scoreLabel.isHidden = false
+            
+            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
+            quizStatusLabel.isHidden = false
+            
+            
+        }
         
     }
     
@@ -321,7 +368,7 @@ class ViewController: UIViewController {
     
     func nextRound()
     {
-        if randomlySelectedQuestion.numberOfAnswerOptions >= randomlySelectedQuestion.questionsPerRound
+        if question.numberOfAnswerOptions >= question.questionsPerRound
         {
             // Game is over
             //displayScore()
@@ -337,6 +384,7 @@ class ViewController: UIViewController {
         //nextMoveButton.isHidden = true
         nextMoveButton.isEnabled = false
         nextMoveButton.setTitle("", for: UIControlState()) //change later to variable
+        nextMoveButton.alpha = 0.5
         ansVerify.isHidden =  true
         
         ans1Button.setTitle("", for: UIControlState())
@@ -350,9 +398,9 @@ class ViewController: UIViewController {
         ans4Button.alpha = 1
         
         //Populate Question Field and Answer Fields with question information
-        randomlySelectedQuestion.newDisplayQuestion()
+        question.newDisplayQuestion()
         
-        for (key, value) in randomlySelectedQuestion.selectedQuestion
+        for (key, value) in question.selectedQuestion
         {
             switch key
             {
@@ -373,8 +421,12 @@ class ViewController: UIViewController {
         ans3Button.isEnabled = true
         ans4Button.isEnabled = true
         
-        counter = 0.0
+        questionNumberLabel.text = "Question \(question.questionsAsked + 1):"
+        
+        
+        counter = 15.0
         timerLabel.text = "\(counter)"
+        progressBar.progress = 0.0
         
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(ViewController.updateTimer), userInfo: nil, repeats: true)
         
@@ -383,7 +435,7 @@ class ViewController: UIViewController {
         //scoreLabel.isHidden = true
         //nextMoveButton.isHidden = true
         
-        randomlySelectedQuestion.incrementQuestionsAsked()
+        question.incrementQuestionsAsked()
        
         /*
         for (key, value) in TriviaQuestionGenerator().newDisplayQuestion()

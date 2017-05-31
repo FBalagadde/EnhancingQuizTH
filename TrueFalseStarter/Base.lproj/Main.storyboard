@@ -141,7 +141,7 @@
                                 <color key="textColor" red="1" green="0.50196081400000003" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="t8W-Cw-aGt">
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="t8W-Cw-aGt">
                                 <rect key="frame" x="30" y="67" width="315" height="2"/>
                                 <color key="tintColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="progressTintColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -213,8 +213,10 @@
                         <outlet property="ansVerify" destination="N1t-mC-OpV" id="xbO-oi-ew6"/>
                         <outlet property="answersFrame" destination="yQp-ZD-9cK" id="9ws-2I-VtN"/>
                         <outlet property="nextMoveButton" destination="deD-Km-HCy" id="6lk-fe-2tK"/>
+                        <outlet property="progressBar" destination="t8W-Cw-aGt" id="eYq-wf-SXN"/>
                         <outlet property="questionField" destination="I3V-ih-1Ky" id="7UI-o2-ATi"/>
-                        <outlet property="questionFrame" destination="Tja-vm-11q" id="NAg-lA-leK"/>
+                        <outlet property="questionFrame" destination="Tja-vm-11q" id="DHD-kC-Zmx"/>
+                        <outlet property="questionNumberLabel" destination="h15-Ld-G4P" id="fqJ-w8-xy3"/>
                         <outlet property="quizStatusLabel" destination="dUh-HB-HRF" id="5qo-1k-6Rb"/>
                         <outlet property="scoreLabel" destination="LP4-xi-g69" id="IoY-j9-kmQ"/>
                         <outlet property="timerLabel" destination="446-6Z-D1u" id="7rq-xN-Osm"/>
