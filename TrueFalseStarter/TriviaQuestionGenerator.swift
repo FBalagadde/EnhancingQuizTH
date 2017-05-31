@@ -8,13 +8,26 @@
 
 import GameKit
 
+/// This Struct handless all issues related to questions:
+/// (1) the original questions:                  triviaQuestions: [[String : String]],
+/// (2) the randomly selected question:          selectedQuestion: [String: String],
+/// (3) the number of correct answers:           correctQuestions: Int,
+/// (4) the number of questions per round:       questionsPerRound: Int,
+/// (5) # of answer options for current question:  numberOfAnswerOptions: Int,
+/// (6) Function to increment # of correct answers:     func incrementCorrectAnswers(),
+/// (7) Function to increment # of questions asked:     func incrementQuestionsAsked()
 struct TriviaQuestionGenerator
 {
-    var selectedQuestion: [String: String] = [:]
-    var correctQuestions: Int = 0
-    var numberOfAnswerOptions: Int = 0 //will increment this later
+    var selectedQuestion: [String: String] = [:] //Dictionary for selected question
+    var correctQuestions: Int = 0   //Number of correct answers
+    var numberOfAnswerOptions: Int = 0 //Number of answer options, 3 or 4will increment this later
     var questionsAsked: Int = 0
-    var questionsPerRound = 4
+    var questionsPerRound: Int = 4
+    
+    //generat a random number from 0 to 9, Even => 4 questions, Odd=> 3 questions
+    //var randomNum: Int = (GKRandomSource.sharedRandom().nextInt(upperBound: 9))
+    
+    var gameQuestions: [String] = []
     
     let triviaQuestions: [[String : String]] = [
         ["Question": "This was the only US President to serve more than two consecutive terms.",         "Ans 1": "George Washington",      "Ans 2": "Franklin D. Roosevelt", "Ans 3": "Woodrow Wilson",  "Ans 4": "Andrew Jackson",    "Cor Ans": "2"],
@@ -40,24 +53,137 @@ struct TriviaQuestionGenerator
     
     mutating func newDisplayQuestion()
     {
-        let indexOfSelectQuestion: Int = GKRandomSource.sharedRandom().nextInt(upperBound: triviaQuestions.count)
-        //let questionDictionary = triviaQuestions[indexOfSelectQuestion]
+        var indexOfSelectQuestion: Int = 0
+        //Select a question that has not already been asked during this round
+        repeat
+        {
+            indexOfSelectQuestion = GKRandomSource.sharedRandom().nextInt(upperBound: triviaQuestions.count)
+            
+            selectedQuestion = triviaQuestions[indexOfSelectQuestion]
+        } while gameQuestions.contains(selectedQuestion["Question"]!)
+        gameQuestions.append(selectedQuestion["Question"]!) //include the question asked in the gameQuestions array
         
-        selectedQuestion = triviaQuestions[indexOfSelectQuestion]
+        
+        //Algorithm to randomy generate a question with 3 or 4 options
+        //Randomly generate a 3 or a 4
+        if ((GKRandomSource.sharedRandom().nextInt(upperBound: 10)) % 2 == 0 ? 4 : 3) == 3 //If a 3 is generated
+        {
+            numberOfAnswerOptions = 3   //The number of options for this question is 3
+            //Reduce the number of options in the selected question from 4 to 3
+            //1. Find the option that contains the answer
+            //2. Select two of the incorrect options at random
+            //3. Bundle the two incorrect options with the correct one to the original question
+            //4. Modify teh answer option to accurately report the correct option
+            
+            var newSelectedQuestion: [String: String] = [:] //String dictionary to house the new 3-option question
+            newSelectedQuestion["Question"] = selectedQuestion["Question"]! //insert Question key and value
+            
+            
+            //Populate the question with 3 option answers. The correct answer must be one of them
+            var selectedKeys: [Int] = []    //array to hold selected numbers 1, 2,3 or 4
+            var randOptNum: Int = 0         //variable to hold random number created 1, 2, 3 or 4
+            var conainsAns: Bool = false    //Does the question contain the correct answer as one of the options?
+            
+            for count in 1...3
+            {
+                //Generate a random number 1, 2, 3 or 4, and select it if it has not already been selected
+                repeat
+                {
+                    randOptNum = GKRandomSource.sharedRandom().nextInt(upperBound: 1000)%4 + 1
+                } while selectedKeys.contains(randOptNum)
+                selectedKeys.append(randOptNum)
+               
+                
+                switch count
+                {
+                //If the new question contain 2 answer options and none of them is the right one,
+                //then force the third option to be the right option
+                case 3:
+                    for (key, value) in newSelectedQuestion
+                    {
+                        //If one of the values in the new question dictionary is the correct answer
+                        if value == selectedQuestion["Ans \(selectedQuestion["Cor Ans"]!)"]
+                        {
+                            conainsAns = true
+                        }
+                    }
+                    
+                    if !conainsAns
+                    {
+                        newSelectedQuestion["Ans \(count)"] = selectedQuestion["Ans " + "Cor Ans"]!
+                        newSelectedQuestion["Cor Ans"] = "\(count)"
+                    } else
+                    {
+                        newSelectedQuestion["Ans \(count)"] = selectedQuestion["Ans \(randOptNum)"]!
+                    }
+                    
+                default:
+                    newSelectedQuestion["Ans \(count)"] = selectedQuestion["Ans \(randOptNum)"]!
+                    if selectedQuestion["Cor Ans"]! == "\(randOptNum)" //if this is the right answer
+                    {
+                        newSelectedQuestion["Cor Ans"] = "\(count)"
+                    }
+                }
+            }
+            selectedQuestion = newSelectedQuestion
+        } else
+        {
+            numberOfAnswerOptions = 4   //The number of options for this question is 4
+        }
     }
     
+    /// Function to increment the number of correct answers
     mutating func incrementCorrectAnswers()
     {
         correctQuestions += 1
     }
     
+    /// Function to increment the number of questions asked
     mutating func incrementQuestionsAsked()
     {
          questionsAsked += 1
     }
-    
 }
 
-let triviaQuestionGenerator: TriviaQuestionGenerator = TriviaQuestionGenerator()
 
-let triviaQuest = triviaQuestionGenerator.triviaQuestions[1]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

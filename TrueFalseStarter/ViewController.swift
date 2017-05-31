@@ -381,6 +381,7 @@ class ViewController: UIViewController {
     
     func displayQuestion()
     {
+        print(question.gameQuestions)
         //nextMoveButton.isHidden = true
         nextMoveButton.isEnabled = false
         nextMoveButton.setTitle("", for: UIControlState()) //change later to variable
