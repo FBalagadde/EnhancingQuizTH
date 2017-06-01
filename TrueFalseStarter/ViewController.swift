@@ -47,17 +47,17 @@ class ViewController: UIViewController {
     
     //@IBOutlet weak var nextButton: UIButton!
     
+   
     
     @IBOutlet weak var questionField: UILabel!
     @IBOutlet weak var ansVerify: UILabel!
     @IBOutlet weak var scoreLabel: UILabel!
-    @IBOutlet weak var quizStatusLabel: UILabel!
+    //@IBOutlet weak var quizStatusLabel: UILabel!
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var questionNumberLabel: UILabel!
     
     @IBOutlet weak var questionFrame: UIView!
-    
-    @IBOutlet weak var answersFrame: UIView!
+     @IBOutlet weak var questionFrame2: UIView!
    
     
     var corAnswer: String = ""
@@ -67,16 +67,26 @@ class ViewController: UIViewController {
     @IBOutlet weak var playAgainButton: UIButton!
     
     
+    //New variables
+    var ScreenWidth: CGFloat = 0.0
+    var ScreenHeight: CGFloat = 0.0
+    
+    
+    
+    //New Variables
+    
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        //New Code
+        //var screenSize: CGRect = UIScreen.
+        
+        //New Code
+        
 
         initializeApp()
-        displayQuestion()
-        
-        
-        //let question: [String: String] = TriviaQuestionGenerator().newDisplayQuestion()
-      
+        //displayQuestion()
     }
     
     func initializeApp()
@@ -90,7 +100,7 @@ class ViewController: UIViewController {
         scoreLabel.isHidden = true
         nextMoveButton.isHidden = true
         nextMoveButton.setTitle("", for: UIControlState())
-        quizStatusLabel.isHidden = true
+        //quizStatusLabel.isHidden = true
         
         let cornerRadius: CGFloat = 10 //will move
         ans1Button.layer.cornerRadius = cornerRadius
@@ -98,8 +108,13 @@ class ViewController: UIViewController {
         ans3Button.layer.cornerRadius = cornerRadius
         ans4Button.layer.cornerRadius = cornerRadius
         nextMoveButton.layer.cornerRadius = cornerRadius
+        
         questionFrame.layer.cornerRadius = cornerRadius
-        answersFrame.layer.cornerRadius = cornerRadius
+        questionFrame.layer.borderColor = UIColor.white.cgColor
+        questionFrame.layer.borderWidth = 2.0
+        
+        questionFrame2.layer.cornerRadius = cornerRadius
+
         ansVerify.layer.cornerRadius = cornerRadius
         scoreLabel.layer.cornerRadius = cornerRadius
         timerLabel.text = "15.0"
@@ -141,8 +156,8 @@ class ViewController: UIViewController {
             nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
             ansVerify.isHidden =  false
             
-            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
-            quizStatusLabel.isHidden = false
+            //quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
+            //quizStatusLabel.isHidden = false
             
             timer.invalidate() //This pauses the timer
             timerLabel.text = String(format: "%.1f", counter)
@@ -170,8 +185,8 @@ class ViewController: UIViewController {
             nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
             ansVerify.isHidden =  false
             
-            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
-            quizStatusLabel.isHidden = false
+            //quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
+            //quizStatusLabel.isHidden = false
             
             timer.invalidate() //This pauses the timer
             timerLabel.text = String(format: "%.1f", counter)
@@ -199,8 +214,8 @@ class ViewController: UIViewController {
             nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
             ansVerify.isHidden =  false
             
-            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
-            quizStatusLabel.isHidden = false
+           // quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
+            //quizStatusLabel.isHidden = false
             
             timer.invalidate() //This pauses the timer
             timerLabel.text = String(format: "%.1f", counter)
@@ -228,8 +243,8 @@ class ViewController: UIViewController {
             nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
             ansVerify.isHidden =  false
             
-            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
-            quizStatusLabel.isHidden = false
+            //quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
+            //quizStatusLabel.isHidden = false
             
             timer.invalidate() //This pauses the timer
             timerLabel.text = String(format: "%.1f", counter)
@@ -345,8 +360,8 @@ class ViewController: UIViewController {
             scoreLabel.text = "Score: \(question.correctQuestions)"
             scoreLabel.isHidden = false
             
-            quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
-            quizStatusLabel.isHidden = false
+            //quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
+            //quizStatusLabel.isHidden = false
             
             
         }
