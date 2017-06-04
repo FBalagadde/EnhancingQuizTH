@@ -66,12 +66,15 @@ struct TriviaQuestionGenerator
         gameQuestions.append(selectedQuestion["Question"]!) //include the question asked in the gameQuestions array
         
         
+        
         //Algorithm to randomy generate a question with 3 or 4 options
         //Randomly generate a 3 or a 4
         
         let oddOrEvenRandomNUMber = (GKRandomSource.sharedRandom().nextInt(upperBound: 1000)) % 2
+
         
-        if oddOrEvenRandomNUMber == 0 {
+        if oddOrEvenRandomNUMber == 0
+        {
             numberOfAnswerOptions = 4
         }else{
             numberOfAnswerOptions = 3
@@ -79,66 +82,25 @@ struct TriviaQuestionGenerator
         
         if numberOfAnswerOptions == 3   //If a 3 is generated
         {
-            //The number of options for this question is 3
-            
-            //Reduce the number of options in the selected question from 4 to 3
-            //1. Find the option that contains the answer
-            //2. Select two of the incorrect options at random
-            //3. Bundle the two incorrect options with the correct one to the original question
-            //4. Modify teh answer option to accurately report the correct option
-            
-            var newSelectedQuestion: [String: String] = [:] //String dictionary to house the new 3-option question
-            newSelectedQuestion["Question"] = selectedQuestion["Question"]! //insert Question key and value
-            
-            
-            //Populate the question with 3 option answers. The correct answer must be one of them
-            
-            var randOptNum: Int = 0         //variable to hold random number created 1, 2, 3 or 4
-            var conainsAns: Bool = false    //Does the question contain the correct answer as one of the options?
-            
-            for count in 1...3
+
+            if selectedQuestion["Cor Ans"] == "4"
             {
-                //Generate a random number 1, 2, 3 or 4, and select it if it has not already been selected
-                repeat
-                {
-                    randOptNum = (GKRandomSource.sharedRandom().nextInt(upperBound: 1000)%4) + 1 //random num: 1, 2, 3 or 4
-                } while selectedKeys.contains(randOptNum)
-                selectedKeys.append(randOptNum)
-               
+                //swap the correct answer with one of the 3 options
+                let randomNumberFrom1To3 = ((GKRandomSource.sharedRandom().nextInt(upperBound: 1000))%3) + 1
                 
-                switch count
+                switch randomNumberFrom1To3
                 {
-                //If the new question contain 2 answer options and none of them is the right one,
-                //then force the third option to be the right option
-                case 3:
-                    for (_, value) in newSelectedQuestion
-                    {
-                        //If one of the values in the new question dictionary is the correct answer
-                        if value == selectedQuestion["Ans \(selectedQuestion["Cor Ans"]!)"]
-                        {
-                            conainsAns = true
-                        }
-                    }
-                    
-                    if !conainsAns
-                    {
-                        //let correctAnsString: String =
-                        newSelectedQuestion["Ans \(count)"] = selectedQuestion["Ans " + selectedQuestion["Cor Ans"]!]!
-                        newSelectedQuestion["Cor Ans"] = "\(count)"
-                    } else
-                    {
-                        newSelectedQuestion["Ans \(count)"] = selectedQuestion["Ans \(randOptNum)"]!
-                    }
-                    
-                default:
-                    newSelectedQuestion["Ans \(count)"] = selectedQuestion["Ans \(randOptNum)"]!
-                    if selectedQuestion["Cor Ans"]! == "\(randOptNum)" //if this is the right answer
-                    {
-                        newSelectedQuestion["Cor Ans"] = "\(count)"
-                    }
+                    case 1:
+                        selectedQuestion["Ans 1"] = selectedQuestion["Ans 4"]
+                        selectedQuestion["Cor Ans"] = "1"
+                    case 2:
+                        selectedQuestion["Ans 2"] = selectedQuestion["Ans 4"]
+                        selectedQuestion["Cor Ans"] = "2"
+                    default: //case 3
+                        selectedQuestion["Ans 3"] = selectedQuestion["Ans 4"]
+                        selectedQuestion["Cor Ans"] = "3"
                 }
             }
-            selectedQuestion = newSelectedQuestion
         }
         questionsAsked += 1
     }

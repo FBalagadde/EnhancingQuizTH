@@ -14,32 +14,21 @@ import AudioToolbox
 
 class ViewController: UIViewController {
     
-    let questionsPerRound = 4
-    var questionsAsked = 0
-    var correctQuestions = 0 //put in results object
-    var indexOfSelectedQuestion: Int = 0
-    
     var gameSound: SystemSoundID = 0
     
-    var delaySeconds: Int = 10 //delay in questions
+    var delaySeconds: Int = 5 //delay in questions
+    var timePerQuestion: Float = 15.0
     
     var correctMark: String = "✔︎"
     var wrongMark: String = "✘"
-    var emptyMark: String = "☐"
-    
-    let trivia: [[String : String]] = [
-        ["Question": "Only female koalas can whistle", "Answer": "False"],
-        ["Question": "Blue whales are technically whales", "Answer": "True"],
-        ["Question": "Camels are cannibalistic", "Answer": "False"],
-        ["Question": "All ducks are birds", "Answer": "True"]
-    ]
+    var emptyMark: String = "◻️"
+    var corAnswer: String = ""
+    var counter: Double = 15.0
     
     
     var question: TriviaQuestionGenerator = TriviaQuestionGenerator() //move this to the initialization section
     var timer = Timer()
-    var counter: Double = 15.0
-    
-    var isRunning: Bool = false
+   
     
     @IBOutlet weak var ans1Button: UIButton!
     @IBOutlet weak var ans2Button: UIButton!
@@ -47,52 +36,24 @@ class ViewController: UIViewController {
     @IBOutlet weak var ans4Button: UIButton!
     @IBOutlet weak var nextMoveButton: UIButton!
     
-    @IBOutlet weak var progressBar: UIProgressView!
-    
-    //@IBOutlet weak var nextButton: UIButton!
-    
     @IBOutlet weak var gameTitle: UILabel!
-   
-    
     @IBOutlet weak var questionField: UILabel!
     @IBOutlet weak var ansVerify: UILabel!
     @IBOutlet weak var ansVerify2: UILabel!
     @IBOutlet weak var ansVerify3: UILabel!
     @IBOutlet weak var ansVerify4: UILabel!
-    
+    @IBOutlet weak var startScreenLabel1: UILabel!
     @IBOutlet weak var scoreLabel: UILabel!
-    //@IBOutlet weak var quizStatusLabel: UILabel!
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var questionNumberLabel: UILabel!
-   
-   
     @IBOutlet weak var questionFrameLabel: UILabel!
     @IBOutlet weak var questionFrameLabel2: UILabel!
-    
-    var corAnswer: String = ""
-
-    
     @IBOutlet weak var correctAnsLabel1: UILabel!
     @IBOutlet weak var correctAnsLabel2: UILabel!
     @IBOutlet weak var correctAnsLabel3: UILabel!
     @IBOutlet weak var correctAnsLabel4: UILabel!
     
-    @IBOutlet weak var correctAnsTickLabel1: UILabel!
-    @IBOutlet weak var correctAnsTickLabel2: UILabel!
-    @IBOutlet weak var correctAnsTickLabel3: UILabel!
-    @IBOutlet weak var correctAnsTickLabel4: UILabel!
-
-    
-    @IBOutlet weak var playAgainButton: UIButton! //consider deleting
-    
-    
-    //New variables
-    var ScreenWidth: CGFloat = 0.0
-    var ScreenHeight: CGFloat = 0.0
-    
-    
-    
-    //New Variables
+    @IBOutlet weak var progressBar: UIProgressView!
     
 
 
@@ -105,8 +66,23 @@ class ViewController: UIViewController {
         
 
         initializeApp()
-        displayQuestion()
+        displayStartGreeting()
     }
+    
+    func displayStartGreeting()
+    {
+        questionFrameLabel.isHidden = false
+        startScreenLabel1.text = "Welcome to TRIVIA QUIZ.\n\nYou have \(timePerQuestion) seconds to answer each question.\n\nPress START below to begin."
+        
+        timerLabel.isHidden = true
+        scoreLabel.isHidden = true
+        
+        startScreenLabel1.isHidden = false
+        nextMoveButton.setTitle("START", for: UIControlState()) //change later to variable
+        nextMoveButton.isEnabled = true
+        nextMoveButton.isHidden = false
+    }
+    
     
     /// Set the initial conditions of all the objects in the App
     /// The apps are initialized in the same order that they appear in the Main StoryBoard
@@ -135,6 +111,10 @@ class ViewController: UIViewController {
         questionFrameLabel2.isHidden = true
         questionFrameLabel.layer.backgroundColor = UIColor.darkGray.cgColor
         
+        startScreenLabel1.isHidden = true
+        startScreenLabel1.layer.cornerRadius = cornerRadius
+        
+        
         questionNumberLabel.isHidden = true
         
         progressBar.progress = 0.0
@@ -149,7 +129,7 @@ class ViewController: UIViewController {
         correctAnsLabel1.isHidden = true
         correctAnsLabel1.layer.cornerRadius = cornerRadius
         correctAnsLabel1.layer.borderWidth = borderWidth
-        correctAnsLabel1.layer.borderColor = UIColor.white.cgColor
+        correctAnsLabel1.layer.borderColor = UIColor.green.cgColor
         
         ans2Button.isHidden = true
         ans2Button.layer.cornerRadius = cornerRadius
@@ -158,7 +138,7 @@ class ViewController: UIViewController {
         correctAnsLabel2.isHidden = true
         correctAnsLabel2.layer.cornerRadius = cornerRadius
         correctAnsLabel2.layer.borderWidth = borderWidth
-        correctAnsLabel2.layer.borderColor = UIColor.white.cgColor
+        correctAnsLabel2.layer.borderColor = UIColor.green.cgColor
         
         ans3Button.isHidden = true
         ans3Button.layer.cornerRadius = cornerRadius
@@ -167,12 +147,7 @@ class ViewController: UIViewController {
         correctAnsLabel3.isHidden = true
         correctAnsLabel3.layer.cornerRadius = cornerRadius
         correctAnsLabel3.layer.borderWidth = borderWidth
-        correctAnsLabel3.layer.borderColor = UIColor.white.cgColor
-        
-        correctAnsTickLabel1.isHidden = true
-        correctAnsTickLabel2.isHidden = true
-        correctAnsTickLabel3.isHidden = true
-        correctAnsTickLabel4.isHidden = true
+        correctAnsLabel3.layer.borderColor = UIColor.green.cgColor
         
         ans4Button.isHidden = true
         ans4Button.layer.cornerRadius = cornerRadius
@@ -181,18 +156,18 @@ class ViewController: UIViewController {
         correctAnsLabel4.isHidden = true
         correctAnsLabel4.layer.cornerRadius = cornerRadius
         correctAnsLabel4.layer.borderWidth = borderWidth
-        correctAnsLabel4.layer.borderColor = UIColor.white.cgColor
+        correctAnsLabel4.layer.borderColor = UIColor.green.cgColor
         
         ansVerify.isHidden = true
         ansVerify2.isHidden = true
         ansVerify3.isHidden = true
         ansVerify4.isHidden = true
         
-        timerLabel.text = "Timer: 15.0"
+        timerLabel.text = "Timer: \(timePerQuestion)"
         timerLabel.isHidden = true
         
         scoreLabel.isHidden = true
-        scoreLabel.text = emptyMark + " " + emptyMark + " " + emptyMark + " " + emptyMark
+        scoreLabel.text = "Score: " + emptyMark + " " + emptyMark + " " + emptyMark + " " + emptyMark
         
         nextMoveButton.isHidden = true
         nextMoveButton.layer.cornerRadius = cornerRadius
@@ -223,255 +198,161 @@ class ViewController: UIViewController {
         return newString
     }
     
+    func answerButtonPressedActions(answerOption: String, checkMarkNumber: UILabel, answerButton: UIButton)
+    {
+        let tempScoreLabelText: String = scoreLabel.text!
+        
+        if question.selectedQuestion["Cor Ans"] == answerOption
+        {
+            checkMarkNumber.text = correctMark
+            question.incrementCorrectAnswers()
+            scoreLabel.text = replaceStringChar(forString: tempScoreLabelText, atIndex: (7 + 2*(question.questionsAsked-1)), with: correctMark)
+        } else {
+            checkMarkNumber.text = wrongMark
+            scoreLabel.text = replaceStringChar(forString: tempScoreLabelText, atIndex: (7 + 2*(question.questionsAsked-1)), with: wrongMark)
+            switch self.question.selectedQuestion["Cor Ans"]!
+            {
+                case "1": self.correctAnsLabel1.isHidden = false
+                case "2": self.correctAnsLabel2.isHidden = false
+                case "3": self.correctAnsLabel3.isHidden = false
+                default: self.correctAnsLabel4.isHidden = false
+            }
+        }
+    
+        checkMarkNumber.isHidden = false
+        scoreLabel.isHidden = false
+        
+        ans1Button.alpha = 0.5
+        ans2Button.alpha = 0.5
+        ans3Button.alpha = 0.5
+        ans4Button.alpha = 0.5
+        answerButton.alpha = 1.0
+        
+        ans1Button.isEnabled = false
+        ans2Button.isEnabled = false
+        ans3Button.isEnabled = false
+        ans4Button.isEnabled = false
+
+        nextMoveButton.isEnabled = true
+        nextMoveButton.alpha = 1.0
+        
+        
+        if question.questionsAsked >= question.questionsPerRound
+        {
+            //loadNextRoundWithDelay(seconds: 5) //will change this to variable
+            let delay = Int64(NSEC_PER_SEC * UInt64(delaySeconds)) ////will change this to variable
+            // Calculates a time value to execute the method given current time and delay
+            let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
+            
+            // Executes the nextRound method at the dispatch time on the main queue
+            DispatchQueue.main.asyncAfter(deadline: dispatchTime)
+            {
+                self.startScreenLabel1.text = "Way to go!\nYou got \(self.question.correctQuestions) out of \(self.question.questionsPerRound) correct.\n\n\nPress PLAY AGAIN below to play again"
+                self.nextMoveButton.setTitle("PLAY AGAIN", for: UIControlState()) //change later to variable
+                self.startScreenLabel1.isHidden = false
+                self.timerLabel.isHidden = true
+                //self.scoreLabel.isHidden = true
+                
+                self.ans1Button.isHidden = true
+                self.ans2Button.isHidden = true
+                self.ans3Button.isHidden = true
+                self.ans4Button.isHidden = true
+                self.progressBar.isHidden = true
+                
+                self.correctAnsLabel1.isHidden = true
+                self.correctAnsLabel2.isHidden = true
+                self.correctAnsLabel3.isHidden = true
+                self.correctAnsLabel4.isHidden = true
+                
+                self.questionFrameLabel.isHidden = false
+                self.questionFrameLabel2.isHidden = true
+            }
+        } else {
+            nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
+        }
+        
+        timer.invalidate() //This pauses the timer
+        timerLabel.text = "Timer: " + String(format: "%.1f", counter)
+        
+    } //end func answerButtonPressedActions()
  
    
     
     @IBAction func checkAnswer(_ sender: UIButton)
     {
-        let tempScoreLabelText: String = scoreLabel.text!
-        
         switch sender
         {
         case ans1Button:
-            
-            if question.selectedQuestion["Cor Ans"] == "1" {
-                ansVerify.text = correctMark
-                question.incrementCorrectAnswers()
-                scoreLabel.text = replaceStringChar(forString: tempScoreLabelText, atIndex: 2*(question.questionsAsked-1), with: correctMark)
-            } else {
-                ansVerify.text = wrongMark
-                scoreLabel.text = replaceStringChar(forString: tempScoreLabelText, atIndex: 2*(question.questionsAsked-1), with: wrongMark)
-                
-                switch question.selectedQuestion["Cor Ans"]!
-                {
-                    case "1": correctAnsLabel1.isHidden = false
-                        correctAnsTickLabel1.isHidden = false
-                    case "2": correctAnsLabel2.isHidden = false
-                        correctAnsTickLabel2.isHidden = false
-                    case "3": correctAnsLabel3.isHidden = false
-                        correctAnsTickLabel3.isHidden = false
-                    default: correctAnsLabel4.isHidden = false
-                        correctAnsTickLabel4.isHidden = false
-                }
-            }
-            ansVerify.isHidden = false
-            scoreLabel.isHidden = false
-          
-         
-            ans2Button.alpha = 0.5
-            ans3Button.alpha = 0.5
-            ans4Button.alpha = 0.5
-            
-            ans1Button.isEnabled = false
-            ans2Button.isEnabled = false
-            ans3Button.isEnabled = false
-            ans4Button.isEnabled = false
-            
-            nextMoveButton.isEnabled = true
-            nextMoveButton.alpha = 1.0
-            
-            if question.questionsAsked >= question.questionsPerRound
-            {
-                nextMoveButton.setTitle("Play Again", for: UIControlState()) //change later to variable
-            } else {
-                nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
-            }
-            
-            timer.invalidate() //This pauses the timer
-            timerLabel.text = "Timer: " + String(format: "%.1f", counter)
+            answerButtonPressedActions(answerOption: "1", checkMarkNumber: ansVerify, answerButton: ans1Button)
+  
             
         case ans2Button:
-            if question.selectedQuestion["Cor Ans"] == "2" {
-                ansVerify.text = "Correct!" //convert into array
-                question.incrementCorrectAnswers()
-            } else {
-                ansVerify.text = "Sorry, that's not it" //convert into array
-            }
-         
-            ans1Button.alpha = 0.5
-            ans3Button.alpha = 0.5
-            ans4Button.alpha = 0.5
-            
-            ans1Button.isEnabled = false
-            ans2Button.isEnabled = false
-            ans3Button.isEnabled = false
-            ans4Button.isEnabled = false
-            
-            nextMoveButton.isEnabled = true
-            nextMoveButton.isHidden = false
-            nextMoveButton.alpha = 1.0
-            nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
-            ansVerify.isHidden =  false
-            
-            //quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
-            //quizStatusLabel.isHidden = false
-            
-            timer.invalidate() //This pauses the timer
-            timerLabel.text = "Timer: " + String(format: "%.1f", counter)
+            answerButtonPressedActions(answerOption: "2", checkMarkNumber: ansVerify2, answerButton: ans2Button)
             
         case ans3Button:
-            if question.selectedQuestion["Cor Ans"] == "3" {
-                ansVerify.text = "Correct!" //convert into array
-                question.incrementCorrectAnswers()
-            } else {
-                ansVerify.text = "Sorry, that's not it" //convert into array
-            }
-       
-            ans1Button.alpha = 0.5
-            ans2Button.alpha = 0.5
-            ans4Button.alpha = 0.5
-            
-            ans1Button.isEnabled = false
-            ans2Button.isEnabled = false
-            ans3Button.isEnabled = false
-            ans4Button.isEnabled = false
-            
-            nextMoveButton.isEnabled = true
-            nextMoveButton.isHidden = false
-            nextMoveButton.alpha = 1.0
-            nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
-            ansVerify.isHidden =  false
-            
-           // quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
-            //quizStatusLabel.isHidden = false
-            
-            timer.invalidate() //This pauses the timer
-            timerLabel.text = "Timer: " + String(format: "%.1f", counter)
-            
+            answerButtonPressedActions(answerOption: "3", checkMarkNumber: ansVerify3, answerButton: ans3Button)
+
         case ans4Button:
-            if question.selectedQuestion["Cor Ans"] == "4" {
-                ansVerify.text = "Correct!" //convert into array
-                question.incrementCorrectAnswers()
-            } else {
-                ansVerify.text = "Sorry, that's not it" //convert into array
-            }
- 
-            ans1Button.alpha = 0.5
-            ans2Button.alpha = 0.5
-            ans3Button.alpha = 0.5
-            
-            ans1Button.isEnabled = false
-            ans2Button.isEnabled = false
-            ans3Button.isEnabled = false
-            ans4Button.isEnabled = false
-            
-            nextMoveButton.isEnabled = true
-            nextMoveButton.isHidden = false
-            nextMoveButton.alpha = 1.0
-            nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
-            ansVerify.isHidden =  false
-            
-            //quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
-            //quizStatusLabel.isHidden = false
-            
-            timer.invalidate() //This pauses the timer
-            timerLabel.text = "Timer: " + String(format: "%.1f", counter)
-         
-            /*
+            answerButtonPressedActions(answerOption: "4", checkMarkNumber: ansVerify4, answerButton: ans4Button)
+
         case nextMoveButton:
+            //loadNextRoundWithDelay(seconds: 0)
+            
+
+            //displayQuestion()
+            
+           
             if question.questionsAsked < question.questionsPerRound
             {
+               self.displayQuestion()
+            }else
+            {
                 //loadNextRoundWithDelay(seconds: 5) //will change this to variable
-                 displayQuestion()
-            }else {
-                //nextbutton = play again
-                //display final score
+                let delay = Int64(NSEC_PER_SEC * UInt64(2)) ////will change this to variable
+                // Calculates a time value to execute the method given current time and delay
+                let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
+                
+                // Executes the nextRound method at the dispatch time on the main queue
+                DispatchQueue.main.asyncAfter(deadline: dispatchTime)
+                {
+                    self.question = TriviaQuestionGenerator() //Refresh the question object
+                    self.initializeApp()
+                    self.displayQuestion()
+                }
             }
-            nextMoveButton.isEnabled = false
-            //nextMoveButton.isHidden = true
-            nextMoveButton.setTitle("", for: UIControlState()) //change later to variable
-            nextMoveButton.alpha = 0.5
-*/
+
            
-        default: ansVerify.text = "Indeterminate" //convert into array
-
-            
+        default: ansVerify.text = "Indeterminate" //This is a redundant statement
         }
-        
-
-        
-        //ans1Button.setTitle(value, for: UIControlState())
-        //nextMoveButton.setTitle("Next Question", for: UIControlState()) //put next question in String
-        
-        //change button color appropriately
-        //nextMoveButton.isHidden = false
-        
-        
-        
-        /*
-        let delay2 = Int64(NSEC_PER_SEC * UInt64(3)) //will change th input to a variable
-        // Calculates a time value to execute the method given current time and delay
-        let dispatchTime2 = DispatchTime.now() + Double(delay2) / Double(NSEC_PER_SEC)
-        
-        // Executes the nextRound method at the dispatch time on the main queue
-        DispatchQueue.main.asyncAfter(deadline: dispatchTime2) {
-         
-        
-        self.scoreLabel.text = "Score: \(self.randomlySelectedQuestion.correctQuestions)/\(self.randomlySelectedQuestion.questionsAsked)"
-        self.scoreLabel.isHidden = false
-        
-        //ans1Button.setTitle(value, for: UIControlState())
-        self.nextMoveButton.setTitle("Next Question", for: UIControlState()) //put next question in String
-        //change button color appropriately
-        self.nextMoveButton.isHidden = false
-        
-        self.quizStatusLabel.text = "You have completed \(self.randomlySelectedQuestion.questionsAsked)/\(self.randomlySelectedQuestion.questionsPerRound) questions"
-        self.quizStatusLabel.isHidden = false
-        }
- */
-        
-
-        
-    /*
-        // Increment the questions asked counter
-        questionsAsked += 1
-        
-        let selectedQuestionDict = trivia[indexOfSelectedQuestion]
-        let correctAnswer = selectedQuestionDict["Answer"]
-        
-        if (sender === trueButton &&  correctAnswer == "True") || (sender === falseButton && correctAnswer == "False") {
-            correctQuestions += 1
-            questionField.text = "Correct!"
-        } else {
-            questionField.text = "Sorry, wrong answer!"
-        }
-        
-        //loadNextRoundWithDelay(seconds: 2)
- */
-    } // end @IBAction func checkAnswer
+    }
     
+
 
     
     func updateTimer()
     {
         counter -= 0.1
-        progressBar.progress += 0.1/15.0
+
+        progressBar.progress += 0.1/timePerQuestion
         
         timerLabel.text = "Timer: " + String(format: "%.1f", counter)
         let tempScoreLabelText = scoreLabel.text
         
-        
         if counter <= 0.0
         {
-            
             timer.invalidate() //This pauses the timer
             counter = 0.0
             progressBar.progress = 1.0
             timerLabel.text = "Timer: " + String(format: "%.1f", counter)
             
-
-            scoreLabel.text = replaceStringChar(forString: tempScoreLabelText!, atIndex: 2*(question.questionsAsked-1), with: wrongMark)
+            scoreLabel.text = replaceStringChar(forString: tempScoreLabelText!, atIndex: (7 + 2*(question.questionsAsked-1)), with: wrongMark)
             
             switch question.selectedQuestion["Cor Ans"]!
             {
             case "1": correctAnsLabel1.isHidden = false
-                correctAnsTickLabel1.isHidden = false
             case "2": correctAnsLabel2.isHidden = false
-                correctAnsTickLabel2.isHidden = false
             case "3": correctAnsLabel3.isHidden = false
-                correctAnsTickLabel3.isHidden = false
             default: correctAnsLabel4.isHidden = false
-                correctAnsTickLabel4.isHidden = false
             }
             
             ans1Button.alpha = 0.5
@@ -486,36 +367,51 @@ class ViewController: UIViewController {
             
             nextMoveButton.isEnabled = true
             nextMoveButton.alpha = 1.0
-            nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
+            //nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
+            
+            if question.questionsAsked >= question.questionsPerRound
+            {
+                let delay = Int64(NSEC_PER_SEC * UInt64(delaySeconds)) //seconds to wait
+                // Calculates a time value to execute the method given current time and delay
+                let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
+                
+                // Executes the nextRound method at the dispatch time on the main queue
+                DispatchQueue.main.asyncAfter(deadline: dispatchTime)
+                {
+                    self.startScreenLabel1.text = "Way to go!\nYou got \(self.question.correctQuestions) out of \(self.question.questionsPerRound) correct.\n\n\nPress PLAY AGAIN below to play again"
+                    self.nextMoveButton.setTitle("PLAY AGAIN", for: UIControlState()) //change later to variable
+                    self.startScreenLabel1.isHidden = false
+                    self.timerLabel.isHidden = true
+                    //self.scoreLabel.isHidden = true
+                    
+                    self.ans1Button.isHidden = true
+                    self.ans2Button.isHidden = true
+                    self.ans3Button.isHidden = true
+                    self.ans4Button.isHidden = true
+                    self.progressBar.isHidden = true
+                    
+                    self.correctAnsLabel1.isHidden = true
+                    self.correctAnsLabel2.isHidden = true
+                    self.correctAnsLabel3.isHidden = true
+                    self.correctAnsLabel4.isHidden = true
+                    
+                    self.questionFrameLabel.isHidden = false
+                    self.questionFrameLabel2.isHidden = true
+                }
+            } else
+            {
+                self.nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
+            }
+        }
+    }
+    
 
-            
-            //quizStatusLabel.text = "You have completed \(question.questionsAsked)/\(question.questionsPerRound) questions"
-            //quizStatusLabel.isHidden = false
-            
-            
-        }
-        
-    }
-    
-    func loadNextRoundWithDelay(seconds: Int) {
-        // Converts a delay in seconds to nanoseconds as signed 64 bit integer
-        let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
-        // Calculates a time value to execute the method given current time and delay
-        let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
-        
-        // Executes the nextRound method at the dispatch time on the main queue
-        DispatchQueue.main.asyncAfter(deadline: dispatchTime) {
-            self.nextRound()
-        }
-    }
-    
-    
     func nextRound()
     {
-        if question.numberOfAnswerOptions >= question.questionsPerRound
+        if question.questionsAsked >= question.questionsPerRound
         {
             // Game is over
-            //displayScore()
+            //displayScore() //will bring this back
             print("This Game is Over")
         } else {
             // Continue game
@@ -528,13 +424,9 @@ class ViewController: UIViewController {
     func displayQuestion()
     {
         question.newDisplayQuestion()
-        print(question.selectedQuestion)
-        print(question.selectedQuestion.count)
-        print(question.numberOfAnswerOptions)
+        startScreenLabel1.isHidden = true
         
-      
-        
-        questionField.text = "Question \(question.questionsAsked)"
+        questionNumberLabel.text = "Question \(question.questionsAsked)"
         nextMoveButton.setTitle(" ", for: UIControlState())
         questionNumberLabel.isHidden = false
         questionField.isHidden = false
@@ -547,6 +439,8 @@ class ViewController: UIViewController {
             switch key
             {
             case "Question": questionField.text = value
+                print(value)
+                print(" ")
             case "Ans 1": ans1Button.setTitle(value, for: UIControlState())
             case "Ans 2": ans2Button.setTitle(value, for: UIControlState())
             case "Ans 3": ans3Button.setTitle(value, for: UIControlState())
@@ -555,13 +449,33 @@ class ViewController: UIViewController {
             default: print("unknown option")
             }
         }
+        //
+        ansVerify.isHidden = true
+        ansVerify2.isHidden = true
+        ansVerify3.isHidden = true
+        ansVerify4.isHidden = true
+        
         ans1Button.isEnabled = true
         ans2Button.isEnabled = true
         ans3Button.isEnabled = true
         ans4Button.isEnabled = true
         
+        ans1Button.alpha = 1.0
+        ans2Button.alpha = 1.0
+        ans3Button.alpha = 1.0
+        ans4Button.alpha = 1.0
+        
+        correctAnsLabel1.isHidden = true
+        correctAnsLabel2.isHidden = true
+        correctAnsLabel3.isHidden = true
+        correctAnsLabel4.isHidden = true
+        
+        questionFrameLabel.isHidden =  true
+        questionFrameLabel2.isHidden = true
+        
+        //
        
-        counter = 15.0
+        counter = Double(timePerQuestion)
         timerLabel.text = "Timer: \(counter)"
         progressBar.progress = 0.0
         timerLabel.isHidden = false
@@ -569,6 +483,7 @@ class ViewController: UIViewController {
         ans1Button.isHidden = false
         ans2Button.isHidden = false
         ans3Button.isHidden = false
+        ans4Button.isHidden = true
         
         if question.numberOfAnswerOptions == 4
         {
@@ -581,22 +496,14 @@ class ViewController: UIViewController {
         }
         
         nextMoveButton.isHidden = false
+        nextMoveButton.setTitle("", for: UIControlState())
+        nextMoveButton.isEnabled = false
     
-        
-        
          //Start Timer
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(ViewController.updateTimer), userInfo: nil, repeats: true)
-        
-
-        //quizStatusLabel.isHidden = true
-        
-        /*indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextInt(upperBound: trivia.count)
-        let questionDictionary = trivia[indexOfSelectedQuestion]
-        questionField.text = questionDictionary["Question"]
-        playAgainButton.isHidden = true
- */
     }
     
+
     
     
     /*
