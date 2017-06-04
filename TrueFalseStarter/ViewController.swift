@@ -15,6 +15,10 @@ import AudioToolbox
 class ViewController: UIViewController {
     
     var gameSound: SystemSoundID = 0
+    var correctAnswerSound: SystemSoundID = 0
+    var wrongAnswerSound: SystemSoundID = 0
+    var endGameSound: SystemSoundID = 0
+    var timeUpSound: SystemSoundID = 0
     
     var delaySeconds: Int = 5 //delay in questions
     var timePerQuestion: Float = 15.0
@@ -65,12 +69,19 @@ class ViewController: UIViewController {
         //New Code
         
 
+        loadGameStartSound()
+        loadCorrectAnswerSound()
+        loadWrongAnswerSound()
+        loadEndGameSound()
+        loadTimeUpSound()
         initializeApp()
         displayStartGreeting()
     }
     
     func displayStartGreeting()
     {
+     
+        playGameStartSound()
         questionFrameLabel.isHidden = false
         startScreenLabel1.text = "Welcome to TRIVIA QUIZ.\n\nYou have \(timePerQuestion) seconds to answer each question.\n\nPress START below to begin."
         
@@ -78,9 +89,19 @@ class ViewController: UIViewController {
         scoreLabel.isHidden = true
         
         startScreenLabel1.isHidden = false
-        nextMoveButton.setTitle("START", for: UIControlState()) //change later to variable
-        nextMoveButton.isEnabled = true
         nextMoveButton.isHidden = false
+        
+        //loadNextRoundWithDelay(seconds: 5) //will change this to variable
+        let delay = Int64(NSEC_PER_SEC * UInt64(delaySeconds)) ////will change this to variable
+        // Calculates a time value to execute the method given current time and delay
+        let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
+        
+        // Executes the nextRound method at the dispatch time on the main queue
+        DispatchQueue.main.asyncAfter(deadline: dispatchTime)
+        {
+            self.nextMoveButton.setTitle("START", for: UIControlState()) //change later to variable
+            self.nextMoveButton.isEnabled = true
+        }
     }
     
     
@@ -204,11 +225,13 @@ class ViewController: UIViewController {
         
         if question.selectedQuestion["Cor Ans"] == answerOption
         {
+            playCorrectAnswerSound()
             checkMarkNumber.text = correctMark
             question.incrementCorrectAnswers()
             scoreLabel.text = replaceStringChar(forString: tempScoreLabelText, atIndex: (7 + 2*(question.questionsAsked-1)), with: correctMark)
         } else {
             checkMarkNumber.text = wrongMark
+            playWrongAnswerSound()
             scoreLabel.text = replaceStringChar(forString: tempScoreLabelText, atIndex: (7 + 2*(question.questionsAsked-1)), with: wrongMark)
             switch self.question.selectedQuestion["Cor Ans"]!
             {
@@ -233,12 +256,14 @@ class ViewController: UIViewController {
         ans3Button.isEnabled = false
         ans4Button.isEnabled = false
 
-        nextMoveButton.isEnabled = true
-        nextMoveButton.alpha = 1.0
+ 
         
         
         if question.questionsAsked >= question.questionsPerRound
         {
+            self.nextMoveButton.setTitle("", for: UIControlState()) //change later to variable
+            
+            
             //loadNextRoundWithDelay(seconds: 5) //will change this to variable
             let delay = Int64(NSEC_PER_SEC * UInt64(delaySeconds)) ////will change this to variable
             // Calculates a time value to execute the method given current time and delay
@@ -247,8 +272,9 @@ class ViewController: UIViewController {
             // Executes the nextRound method at the dispatch time on the main queue
             DispatchQueue.main.asyncAfter(deadline: dispatchTime)
             {
+                self.playEndGameSound()
                 self.startScreenLabel1.text = "Way to go!\nYou got \(self.question.correctQuestions) out of \(self.question.questionsPerRound) correct.\n\n\nPress PLAY AGAIN below to play again"
-                self.nextMoveButton.setTitle("PLAY AGAIN", for: UIControlState()) //change later to variable
+                
                 self.startScreenLabel1.isHidden = false
                 self.timerLabel.isHidden = true
                 //self.scoreLabel.isHidden = true
@@ -266,9 +292,26 @@ class ViewController: UIViewController {
                 
                 self.questionFrameLabel.isHidden = false
                 self.questionFrameLabel2.isHidden = true
+                
+                //loadNextRoundWithDelay(seconds: 5) //will change this to variable
+                let delay = Int64(NSEC_PER_SEC * UInt64(10)) ////will change this to variable
+                // Calculates a time value to execute the method given current time and delay
+                let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
+                
+                // Executes the nextRound method at the dispatch time on the main queue
+                DispatchQueue.main.asyncAfter(deadline: dispatchTime)
+                {
+                    self.nextMoveButton.isEnabled = true
+                    self.nextMoveButton.alpha = 1.0
+                    self.nextMoveButton.setTitle("PLAY AGAIN", for: UIControlState()) //change later to variable
+                }
+                
             }
         } else {
             nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
+            
+            nextMoveButton.isEnabled = true
+            nextMoveButton.alpha = 1.0
         }
         
         timer.invalidate() //This pauses the timer
@@ -296,6 +339,7 @@ class ViewController: UIViewController {
             answerButtonPressedActions(answerOption: "4", checkMarkNumber: ansVerify4, answerButton: ans4Button)
 
         case nextMoveButton:
+            nextMoveButton.isEnabled = false
             //loadNextRoundWithDelay(seconds: 0)
             
 
@@ -320,8 +364,6 @@ class ViewController: UIViewController {
                     self.displayQuestion()
                 }
             }
-
-           
         default: ansVerify.text = "Indeterminate" //This is a redundant statement
         }
     }
@@ -340,6 +382,7 @@ class ViewController: UIViewController {
         
         if counter <= 0.0
         {
+            playTimeUpSound()
             timer.invalidate() //This pauses the timer
             counter = 0.0
             progressBar.progress = 1.0
@@ -365,12 +408,14 @@ class ViewController: UIViewController {
             ans3Button.isEnabled = false
             ans4Button.isEnabled = false
             
-            nextMoveButton.isEnabled = true
-            nextMoveButton.alpha = 1.0
+
             //nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
             
             if question.questionsAsked >= question.questionsPerRound
             {
+                nextMoveButton.setTitle("", for: UIControlState()) //change later to variable
+                nextMoveButton.alpha = 0.5
+
                 let delay = Int64(NSEC_PER_SEC * UInt64(delaySeconds)) //seconds to wait
                 // Calculates a time value to execute the method given current time and delay
                 let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
@@ -378,8 +423,9 @@ class ViewController: UIViewController {
                 // Executes the nextRound method at the dispatch time on the main queue
                 DispatchQueue.main.asyncAfter(deadline: dispatchTime)
                 {
+                    self.playEndGameSound()
+                    self.questionField.isHidden = true
                     self.startScreenLabel1.text = "Way to go!\nYou got \(self.question.correctQuestions) out of \(self.question.questionsPerRound) correct.\n\n\nPress PLAY AGAIN below to play again"
-                    self.nextMoveButton.setTitle("PLAY AGAIN", for: UIControlState()) //change later to variable
                     self.startScreenLabel1.isHidden = false
                     self.timerLabel.isHidden = true
                     //self.scoreLabel.isHidden = true
@@ -397,15 +443,31 @@ class ViewController: UIViewController {
                     
                     self.questionFrameLabel.isHidden = false
                     self.questionFrameLabel2.isHidden = true
+                    
+                    
+                }
+                
+                let delay2 = Int64(NSEC_PER_SEC * UInt64(10)) //seconds to wait
+                // Calculates a time value to execute the method given current time and delay
+                let dispatchTime2 = DispatchTime.now() + Double(delay2) / Double(NSEC_PER_SEC)
+                
+                // Executes the nextRound method at the dispatch time on the main queue
+                DispatchQueue.main.asyncAfter(deadline: dispatchTime2)
+                {
+                    self.nextMoveButton.isEnabled = true
+                    self.nextMoveButton.setTitle("PLAY AGAIN", for: UIControlState()) //change later to variable
+                    self.nextMoveButton.alpha = 1.0
                 }
             } else
             {
-                self.nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
+                nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
+                nextMoveButton.isEnabled = true
+                nextMoveButton.alpha = 1.0
             }
         }
     }
     
-
+/*
     func nextRound()
     {
         if question.questionsAsked >= question.questionsPerRound
@@ -418,6 +480,7 @@ class ViewController: UIViewController {
             displayQuestion()
         }
     }
+ */
     
     //
     
@@ -555,8 +618,12 @@ class ViewController: UIViewController {
             self.nextRound()
         }
     }
-    
-    func loadGameStartSound() {
+     */
+    /*
+    func loadGameStartSound() 
+     {
+        //GameSound
+        //
         let pathToSoundFile = Bundle.main.path(forResource: "GameSound", ofType: "wav")
         let soundURL = URL(fileURLWithPath: pathToSoundFile!)
         AudioServicesCreateSystemSoundID(soundURL as CFURL, &gameSound)
@@ -566,5 +633,72 @@ class ViewController: UIViewController {
         AudioServicesPlaySystemSound(gameSound)
     }
  */
+    
+    func loadGameStartSound()
+    {
+        //GameSound
+        //
+        let pathToSoundFile = Bundle.main.path(forResource: "Pacman_Introduction_Music-KP-826387403", ofType: "wav")
+        let soundURL = URL(fileURLWithPath: pathToSoundFile!)
+        AudioServicesCreateSystemSoundID(soundURL as CFURL, &gameSound)
+    }
+    
+    func playGameStartSound() {
+        AudioServicesPlaySystemSound(gameSound)
+    }
+    
+    func loadCorrectAnswerSound()
+    {
+        //GameSound
+        //
+        let pathToSoundFile = Bundle.main.path(forResource: "Metroid_Door-Brandino480-995195341", ofType: "wav")
+        let soundURL = URL(fileURLWithPath: pathToSoundFile!)
+        AudioServicesCreateSystemSoundID(soundURL as CFURL, &correctAnswerSound)
+    }
+    
+    func playCorrectAnswerSound() {
+        AudioServicesPlaySystemSound(correctAnswerSound)
+    }
+    
+    
+    func loadWrongAnswerSound()
+    {
+        //GameSound
+        //
+        let pathToSoundFile = Bundle.main.path(forResource: "Alien Death Ray-SoundBible.com-1203224011", ofType: "wav")
+        let soundURL = URL(fileURLWithPath: pathToSoundFile!)
+        AudioServicesCreateSystemSoundID(soundURL as CFURL, &wrongAnswerSound)
+    }
+    
+    func playWrongAnswerSound() {
+        AudioServicesPlaySystemSound(wrongAnswerSound)
+    }
+    
+    func loadEndGameSound()
+    {
+        //GameSound
+        //
+        let pathToSoundFile = Bundle.main.path(forResource: "Electrical_Sweep-Sweeper-1760111493", ofType: "wav")
+        let soundURL = URL(fileURLWithPath: pathToSoundFile!)
+        AudioServicesCreateSystemSoundID(soundURL as CFURL, &endGameSound)
+    }
+    
+    func playEndGameSound() {
+        AudioServicesPlaySystemSound(endGameSound)
+    }
+    
+    func loadTimeUpSound()
+    {
+        //GameSound
+        //
+        let pathToSoundFile = Bundle.main.path(forResource: "Wrong Buzzer", ofType: "wav")
+        let soundURL = URL(fileURLWithPath: pathToSoundFile!)
+        AudioServicesCreateSystemSoundID(soundURL as CFURL, &timeUpSound)
+    }
+    
+    func playTimeUpSound() {
+        AudioServicesPlaySystemSound(timeUpSound)
+    }
+
 }
 
