@@ -38,8 +38,7 @@ class QuestionManipulator
         self.questionsAsked = 0
         self.questionsPerRound = 4
         self.selectedKeys = []
-        
-        gameQuestions = [] //variable to contain strings of questions asked in a given round
+        self.gameQuestions = [] //variable to contain strings of questions asked in a given round
     }
     
     /// Select a question form the dictionary with 4 or 3 answer options
