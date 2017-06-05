@@ -13,7 +13,8 @@
 		37E954901EE3C92F00E588CE /* Electrical_Sweep-Sweeper-1760111493.wav in Resources */ = {isa = PBXBuildFile; fileRef = 37E9548F1EE3C92F00E588CE /* Electrical_Sweep-Sweeper-1760111493.wav */; };
 		37E954921EE3CAE200E588CE /* Metroid_Door-Brandino480-995195341.wav in Resources */ = {isa = PBXBuildFile; fileRef = 37E954911EE3CAE200E588CE /* Metroid_Door-Brandino480-995195341.wav */; };
 		37E954961EE4FCA900E588CE /* Air Horn-SoundBible.com-964603082.wav in Resources */ = {isa = PBXBuildFile; fileRef = 37E954951EE4FCA900E588CE /* Air Horn-SoundBible.com-964603082.wav */; };
-		37F8E2681EDC858C008887C3 /* TriviaQuestionGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8E2671EDC858C008887C3 /* TriviaQuestionGenerator.swift */; };
+		37E954981EE5BABD00E588CE /* QuestionManipulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E954971EE5BABD00E588CE /* QuestionManipulator.swift */; };
+		37F8E2681EDC858C008887C3 /* TriviaQuestionSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F8E2671EDC858C008887C3 /* TriviaQuestionSet.swift */; };
 		97093D3C1C913506001275BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97093D3B1C913506001275BC /* AppDelegate.swift */; };
 		97093D3E1C913506001275BC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97093D3D1C913506001275BC /* ViewController.swift */; };
 		97093D411C913506001275BC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97093D3F1C913506001275BC /* Main.storyboard */; };
@@ -29,7 +30,8 @@
 		37E9548F1EE3C92F00E588CE /* Electrical_Sweep-Sweeper-1760111493.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Electrical_Sweep-Sweeper-1760111493.wav"; sourceTree = "<group>"; };
 		37E954911EE3CAE200E588CE /* Metroid_Door-Brandino480-995195341.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Metroid_Door-Brandino480-995195341.wav"; sourceTree = "<group>"; };
 		37E954951EE4FCA900E588CE /* Air Horn-SoundBible.com-964603082.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "Air Horn-SoundBible.com-964603082.wav"; sourceTree = "<group>"; };
-		37F8E2671EDC858C008887C3 /* TriviaQuestionGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TriviaQuestionGenerator.swift; sourceTree = "<group>"; };
+		37E954971EE5BABD00E588CE /* QuestionManipulator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuestionManipulator.swift; sourceTree = "<group>"; };
+		37F8E2671EDC858C008887C3 /* TriviaQuestionSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TriviaQuestionSet.swift; sourceTree = "<group>"; };
 		97093D381C913506001275BC /* TrueFalseStarter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueFalseStarter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97093D3B1C913506001275BC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		97093D3D1C913506001275BC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -83,7 +85,8 @@
 				37E9548F1EE3C92F00E588CE /* Electrical_Sweep-Sweeper-1760111493.wav */,
 				37E954951EE4FCA900E588CE /* Air Horn-SoundBible.com-964603082.wav */,
 				37E954911EE3CAE200E588CE /* Metroid_Door-Brandino480-995195341.wav */,
-				37F8E2671EDC858C008887C3 /* TriviaQuestionGenerator.swift */,
+				37F8E2671EDC858C008887C3 /* TriviaQuestionSet.swift */,
+				37E954971EE5BABD00E588CE /* QuestionManipulator.swift */,
 			);
 			path = TrueFalseStarter;
 			sourceTree = "<group>";
@@ -168,9 +171,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37E954981EE5BABD00E588CE /* QuestionManipulator.swift in Sources */,
 				97093D3E1C913506001275BC /* ViewController.swift in Sources */,
 				97093D3C1C913506001275BC /* AppDelegate.swift in Sources */,
-				37F8E2681EDC858C008887C3 /* TriviaQuestionGenerator.swift in Sources */,
+				37F8E2681EDC858C008887C3 /* TriviaQuestionSet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

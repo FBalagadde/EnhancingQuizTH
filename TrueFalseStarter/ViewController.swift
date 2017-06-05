@@ -14,13 +14,19 @@ import AudioToolbox
 
 class ViewController: UIViewController {
     
+    //Declaration of Game Sound Variables
     var gameSound: SystemSoundID = 0
     var correctAnswerSound: SystemSoundID = 0
     var wrongAnswerSound: SystemSoundID = 0
     var endGameSound: SystemSoundID = 0
     var timeUpSound: SystemSoundID = 0
     
-    var delaySeconds: Int = 5 //delay in questions
+    //delays during the quiz
+    var delaySeconds: Int = 5
+    var shortDelaySeconds: Int = 3
+    var mediumDelaySeconds: Int = 8
+    var longDelaySeconds: Int = 12
+    
     var timePerQuestion: Float = 15.0
     
     var correctMark: String = "✔︎"
@@ -29,8 +35,8 @@ class ViewController: UIViewController {
     var corAnswer: String = ""
     var counter: Double = 15.0
     
+    var question: QuestionManipulator = QuestionManipulator(questionSet: TriviaQuestionSet())
     
-    var question: TriviaQuestionGenerator = TriviaQuestionGenerator() //move this to the initialization section
     var timer = Timer()
    
     
@@ -63,25 +69,60 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        //New Code
-        //var screenSize: CGRect = UIScreen.
-        
-        //New Code
-        
-
-        loadGameStartSound()
-        loadCorrectAnswerSound()
-        loadWrongAnswerSound()
-        loadEndGameSound()
-        loadTimeUpSound()
-        
+      
+        loadGameSounds()
         initializeApp()
         displayStartGreeting()
     }
     
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
+    @IBAction func checkAnswer(_ sender: UIButton)
+    {
+        switch sender
+        {
+        case ans1Button:
+            answerButtonPressedActions(answerOption: "1", checkMarkNumber: ansVerify, answerButton: ans1Button)
+            
+        case ans2Button:
+            answerButtonPressedActions(answerOption: "2", checkMarkNumber: ansVerify2, answerButton: ans2Button)
+            
+        case ans3Button:
+            answerButtonPressedActions(answerOption: "3", checkMarkNumber: ansVerify3, answerButton: ans3Button)
+            
+        case ans4Button:
+            answerButtonPressedActions(answerOption: "4", checkMarkNumber: ansVerify4, answerButton: ans4Button)
+            
+        case nextMoveButton:
+            nextMoveButton.isEnabled = false
+            
+            if question.questionsAsked < question.questionsPerRound
+            {
+                displayQuestion()
+            }else
+            {
+                nextMoveButton.setTitle("", for: UIControlState())
+                nextMoveButton.isEnabled = false
+                
+                //Load the next round after a delay
+                let delay = Int64(NSEC_PER_SEC * UInt64(shortDelaySeconds)) //was 2
+                let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
+                DispatchQueue.main.asyncAfter(deadline: dispatchTime)
+                {
+                    self.question = QuestionManipulator(questionSet: TriviaQuestionSet()) //Refresh the question object
+                    self.initializeApp()
+                    self.displayQuestion()
+                }
+            }
+        default: ansVerify.text = "Indeterminate" //This is a redundant statement
+        }
+    }
+
     func displayStartGreeting()
     {
-     
         playGameStartSound()
         questionFrameLabel.isHidden = false
         startScreenLabel1.text = "Welcome to TRIVIA QUIZ.\n\nYou have \(timePerQuestion) seconds to answer each question.\n\nPress START below to begin."
@@ -92,12 +133,9 @@ class ViewController: UIViewController {
         startScreenLabel1.isHidden = false
         nextMoveButton.isHidden = false
         
-        //loadNextRoundWithDelay(seconds: 5) //will change this to variable
-        let delay = Int64(NSEC_PER_SEC * UInt64(delaySeconds)) ////will change this to variable  5 seconds
-        // Calculates a time value to execute the method given current time and delay
+        //A delay to show and enable the START button after the intro game sound
+        let delay = Int64(NSEC_PER_SEC * UInt64(delaySeconds))
         let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
-        
-        // Executes the nextRound method at the dispatch time on the main queue
         DispatchQueue.main.asyncAfter(deadline: dispatchTime)
         {
             self.nextMoveButton.setTitle("START", for: UIControlState()) //change later to variable
@@ -106,18 +144,12 @@ class ViewController: UIViewController {
     }
     
     
-    /// Set the initial conditions of all the objects in the App
-    /// The apps are initialized in the same order that they appear in the Main StoryBoard
+    /// Set the initial conditions for all the objects in the App
+    /// The objects are initialized in the same order that they appear in the Main StoryBoard
     func initializeApp()
     {
-        /////loadGameStartSound()
-        // Start game
-        /////playGameStartSound()
-        
-        //Initial conditions
-        
         //Load and stylize frames
-        let cornerRadius: CGFloat = 10 //will move
+        let cornerRadius: CGFloat = 10
         let borderWidth: CGFloat = 2.0
         
         gameTitle.isHidden = false
@@ -135,7 +167,6 @@ class ViewController: UIViewController {
         
         startScreenLabel1.isHidden = true
         startScreenLabel1.layer.cornerRadius = cornerRadius
-        
         
         questionNumberLabel.isHidden = true
         
@@ -196,30 +227,92 @@ class ViewController: UIViewController {
         nextMoveButton.setTitle("", for: UIControlState())
         nextMoveButton.isEnabled = false
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-   
-    func replaceStringChar(forString myString: String, atIndex index: Int, with newChar: String) -> String
-    {
-        var newString = ""
-        var count: Int = 0
-        
-        for character in myString.characters
-        {
-            if count == index
-            {
-                newString += newChar
-            }else {
-                newString += String(character)
-            }
-            count += 1
-        }
-        return newString
-    }
     
+    func displayQuestion()
+    {
+        question.newDisplayQuestion()
+        startScreenLabel1.isHidden = true
+        
+        questionNumberLabel.text = "Question \(question.questionsAsked)"
+        nextMoveButton.setTitle(" ", for: UIControlState())
+        questionNumberLabel.isHidden = false
+        questionField.isHidden = false
+        progressBar.isHidden = false
+        scoreLabel.isHidden = false
+        
+        ans1Button.isHidden = true
+        ans2Button.isHidden = true
+        ans3Button.isHidden = true
+        ans4Button.isHidden = true
+        
+        //Populate Question Field and Answer Fields with question information
+        for (key, value) in question.selectedQuestion
+        {
+            switch key
+            {
+            case "Question": questionField.text = value
+            case "Ans 1": ans1Button.setTitle(value, for: UIControlState())
+            case "Ans 2": ans2Button.setTitle(value, for: UIControlState())
+            case "Ans 3": ans3Button.setTitle(value, for: UIControlState())
+            case "Ans 4": ans4Button.setTitle(value, for: UIControlState())
+            case "Cor Ans": corAnswer = value
+            default: print("unknown option") //A degenerate option that should never be executed because it is not prescribed in the dictionary
+            }
+        }
+        
+        ansVerify.isHidden = true
+        ansVerify2.isHidden = true
+        ansVerify3.isHidden = true
+        ansVerify4.isHidden = true
+        
+        ans1Button.isEnabled = true
+        ans2Button.isEnabled = true
+        ans3Button.isEnabled = true
+        ans4Button.isEnabled = true
+        
+        ans1Button.alpha = 1.0
+        ans2Button.alpha = 1.0
+        ans3Button.alpha = 1.0
+        ans4Button.alpha = 1.0
+        
+        correctAnsLabel1.isHidden = true
+        correctAnsLabel2.isHidden = true
+        correctAnsLabel3.isHidden = true
+        correctAnsLabel4.isHidden = true
+        
+        questionFrameLabel.isHidden =  true
+        questionFrameLabel2.isHidden = true
+        
+        counter = Double(timePerQuestion)
+        timerLabel.text = "Timer: \(counter)"
+        progressBar.progress = 0.0
+        timerLabel.isHidden = false
+        
+        ans1Button.isHidden = false
+        ans2Button.isHidden = false
+        ans3Button.isHidden = false
+        ans4Button.isHidden = true
+        
+        if question.numberOfAnswerOptions == 4
+        {
+            questionFrameLabel.isHidden = false
+            ans4Button.isHidden = false
+            
+        }else //number of question options = 3
+        {
+            questionFrameLabel2.isHidden = false
+        }
+        
+        nextMoveButton.isHidden = false
+        nextMoveButton.setTitle("", for: UIControlState())
+        nextMoveButton.isEnabled = false
+        
+        //Start Timer
+        timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(ViewController.updateTimer), userInfo: nil, repeats: true)
+    } //End func displayQuestion()
+
+    
+    // Programmed responses of key buttons
     func answerButtonPressedActions(answerOption: String, checkMarkNumber: UILabel, answerButton: UIButton)
     {
         let tempScoreLabelText: String = scoreLabel.text!
@@ -248,7 +341,6 @@ class ViewController: UIViewController {
             
             scoreLabel.text = self.replaceStringChar(forString: tempScoreLabelText, atIndex: (7 + 2*(self.question.questionsAsked-1)), with: self.correctMark)
             
-           
             question.incrementCorrectAnswers()
 
         } else
@@ -274,13 +366,9 @@ class ViewController: UIViewController {
             checkMarkNumber.text = self.wrongMark
             checkMarkNumber.isHidden = false
             
-            
-            //loadNextRoundWithDelay(seconds: 5) //will change this to variable
-            let delay = Int64(NSEC_PER_SEC * UInt64(2)) ////will change this to variable
-            // Calculates a time value to execute the method given current time and delay
+            //Indicate the correct asnwer after a short delay
+            let delay = Int64(NSEC_PER_SEC * UInt64(shortDelaySeconds)) //was 2
             let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
-            
-            // Executes the nextRound method at the dispatch time on the main queue
             DispatchQueue.main.asyncAfter(deadline: dispatchTime)
             {
                 switch self.question.selectedQuestion["Cor Ans"]!
@@ -298,15 +386,21 @@ class ViewController: UIViewController {
             
             nextMoveButton.setTitle("", for: UIControlState()) //change later to variable
             
-            //loadNextRoundWithDelay(seconds: 5) //will change this to variable
-            let delay = Int64(NSEC_PER_SEC * UInt64(8)) ////will change this to variable
-            // Calculates a time value to execute the method given current time and delay
-            let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
+            //Display the final score after a delay
+            // if wrong option selected, delay = mediumDelay, else if correct option is selected, delay = regualr delay
+            var delay = Int64(NSEC_PER_SEC * UInt64(0))
+            if question.selectedQuestion["Cor Ans"] == answerOption
+            {
+                delay = Int64(NSEC_PER_SEC * UInt64(delaySeconds))
+            } else {
+                delay = Int64(NSEC_PER_SEC * UInt64(mediumDelaySeconds))
+            }
             
-            // Executes the nextRound method at the dispatch time on the main queue
+            let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
             DispatchQueue.main.asyncAfter(deadline: dispatchTime)
             {
                 self.playEndGameSound()
+                self.questionField.isHidden = true
                 self.startScreenLabel1.text = "Way to go!\nYou got \(self.question.correctQuestions) out of \(self.question.questionsPerRound) correct.\n\n\nPress PLAY AGAIN below to play again"
                 
                 self.startScreenLabel1.isHidden = false
@@ -327,27 +421,21 @@ class ViewController: UIViewController {
                 self.questionFrameLabel.isHidden = false
                 self.questionFrameLabel2.isHidden = true
                 
-                //loadNextRoundWithDelay(seconds: 5) //will change this to variable
-                let delay = Int64(NSEC_PER_SEC * UInt64(5)) ////will change this to variable
-                // Calculates a time value to execute the method given current time and delay
+                //Display the "PLAY AGAIN" option after a short delay
+                let delay = Int64(NSEC_PER_SEC * UInt64(self.shortDelaySeconds))
                 let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
-                
-                // Executes the nextRound method at the dispatch time on the main queue
                 DispatchQueue.main.asyncAfter(deadline: dispatchTime)
                 {
                     self.nextMoveButton.isEnabled = true
                     self.nextMoveButton.alpha = 1.0
-                    self.nextMoveButton.setTitle("PLAY AGAIN", for: UIControlState()) //change later to variable
+                    self.nextMoveButton.setTitle("PLAY AGAIN", for: UIControlState())
                 }
             }
-        } else {
-            
-            //loadNextRoundWithDelay(seconds: 5) //will change this to variable
-            let delay = Int64(NSEC_PER_SEC * UInt64(3)) ////will change this to variable
-            // Calculates a time value to execute the method given current time and delay
+        } else
+        {
+            //Display the "Next Question" option after a short delay
+            let delay = Int64(NSEC_PER_SEC * UInt64(shortDelaySeconds)) //was 2
             let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
-            
-            // Executes the nextRound method at the dispatch time on the main queue
             DispatchQueue.main.asyncAfter(deadline: dispatchTime)
             {
                 self.nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
@@ -356,65 +444,11 @@ class ViewController: UIViewController {
             }
         }
         
-        
-        
     } //end func answerButtonPressedActions()
  
-   
-    
-    @IBAction func checkAnswer(_ sender: UIButton)
-    {
-        switch sender
-        {
-        case ans1Button:
-            answerButtonPressedActions(answerOption: "1", checkMarkNumber: ansVerify, answerButton: ans1Button)
-  
-            
-        case ans2Button:
-            answerButtonPressedActions(answerOption: "2", checkMarkNumber: ansVerify2, answerButton: ans2Button)
-            
-        case ans3Button:
-            answerButtonPressedActions(answerOption: "3", checkMarkNumber: ansVerify3, answerButton: ans3Button)
-
-        case ans4Button:
-            answerButtonPressedActions(answerOption: "4", checkMarkNumber: ansVerify4, answerButton: ans4Button)
-
-        case nextMoveButton:
-            nextMoveButton.isEnabled = false
-            //loadNextRoundWithDelay(seconds: 0)
-            
-
-            //displayQuestion()
-            
-           
-            if question.questionsAsked < question.questionsPerRound
-            {
-               displayQuestion()
-            }else
-            {
-                nextMoveButton.setTitle("", for: UIControlState())
-                nextMoveButton.isEnabled = false
-                
-                //loadNextRoundWithDelay(seconds: 5) //will change this to variable
-                let delay = Int64(NSEC_PER_SEC * UInt64(2)) ////will change this to variable
-                // Calculates a time value to execute the method given current time and delay
-                let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
-                
-                // Executes the nextRound method at the dispatch time on the main queue
-                DispatchQueue.main.asyncAfter(deadline: dispatchTime)
-                {
-                    self.question = TriviaQuestionGenerator() //Refresh the question object
-                    self.initializeApp()
-                    self.displayQuestion()
-                }
-            }
-        default: ansVerify.text = "Indeterminate" //This is a redundant statement
-        }
-    }
-    
 
 
-    
+    //Timer function to end the question session when the time alotted for each question runs out
     func updateTimer()
     {
         counter -= 0.1
@@ -428,14 +462,10 @@ class ViewController: UIViewController {
         {
             playTimeUpSound()
             
-     
-            
             ans1Button.isEnabled = false
             ans2Button.isEnabled = false
             ans3Button.isEnabled = false
             ans4Button.isEnabled = false
-            
-            
             
             timer.invalidate() //This pauses the timer
             counter = 0.0
@@ -444,11 +474,9 @@ class ViewController: UIViewController {
             
             scoreLabel.text = replaceStringChar(forString: tempScoreLabelText!, atIndex: (7 + 2*(question.questionsAsked-1)), with: wrongMark)
             
-            let delay2 = Int64(NSEC_PER_SEC * UInt64(2)) //seconds to wait
-            // Calculates a time value to execute the method given current time and delay
+            //A delay to allow the time-up game sound to finish playing
+            let delay2 = Int64(NSEC_PER_SEC * UInt64(shortDelaySeconds)) //was 2
             let dispatchTime2 = DispatchTime.now() + Double(delay2) / Double(NSEC_PER_SEC)
-            
-            // Executes the nextRound method at the dispatch time on the main queue
             DispatchQueue.main.asyncAfter(deadline: dispatchTime2)
             {
                 self.ans1Button.alpha = 0.5
@@ -457,11 +485,9 @@ class ViewController: UIViewController {
                 self.ans4Button.alpha = 0.5
             }
             
-            let delay3 = Int64(NSEC_PER_SEC * UInt64(3)) //seconds to wait
-            // Calculates a time value to execute the method given current time and delay
+            //Show the correct option after a short delay
+            let delay3 = Int64(NSEC_PER_SEC * UInt64(shortDelaySeconds))
             let dispatchTime3 = DispatchTime.now() + Double(delay3) / Double(NSEC_PER_SEC)
-            
-            // Executes the nextRound method at the dispatch time on the main queue
             DispatchQueue.main.asyncAfter(deadline: dispatchTime3)
             {
                 switch self.question.selectedQuestion["Cor Ans"]!
@@ -472,22 +498,16 @@ class ViewController: UIViewController {
                     default: self.correctAnsLabel4.isHidden = false
                 }
             }
-       
-      
-            
 
-            //nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
-            
             if question.questionsAsked >= question.questionsPerRound
             {
                 nextMoveButton.setTitle("", for: UIControlState()) //change later to variable
                 nextMoveButton.alpha = 1.0
-
-                let delay = Int64(NSEC_PER_SEC * UInt64(10)) //seconds to wait
-                // Calculates a time value to execute the method given current time and delay
-                let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
                 
-                // Executes the nextRound method at the dispatch time on the main queue
+                // End the question round after a delay
+
+                let delay = Int64(NSEC_PER_SEC * UInt64(mediumDelaySeconds))
+                let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
                 DispatchQueue.main.asyncAfter(deadline: dispatchTime)
                 {
                     self.playEndGameSound()
@@ -512,11 +532,9 @@ class ViewController: UIViewController {
                     self.questionFrameLabel2.isHidden = true
                 }
                 
-                let delay2 = Int64(NSEC_PER_SEC * UInt64(14)) //seconds to wait
-                // Calculates a time value to execute the method given current time and delay
+                //Display the "Play Again" button option after an additional delay
+                let delay2 = Int64(NSEC_PER_SEC * UInt64(longDelaySeconds))
                 let dispatchTime2 = DispatchTime.now() + Double(delay2) / Double(NSEC_PER_SEC)
-                
-                // Executes the nextRound method at the dispatch time on the main queue
                 DispatchQueue.main.asyncAfter(deadline: dispatchTime2)
                 {
                     self.nextMoveButton.isEnabled = true
@@ -525,12 +543,9 @@ class ViewController: UIViewController {
                 }
             } else
             {
-                //loadNextRoundWithDelay(seconds: 5) //will change this to variable
-                let delay = Int64(NSEC_PER_SEC * UInt64(4)) ////will change this to variable
-                // Calculates a time value to execute the method given current time and delay
+                //Display the "Next Question" button option after a short delay
+                let delay = Int64(NSEC_PER_SEC * UInt64(delaySeconds))
                 let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
-                
-                // Executes the nextRound method at the dispatch time on the main queue
                 DispatchQueue.main.asyncAfter(deadline: dispatchTime)
                 {
                     self.nextMoveButton.setTitle("Next Question", for: UIControlState()) //change later to variable
@@ -539,201 +554,66 @@ class ViewController: UIViewController {
                 }
             }
         }
-    }
+    } //End func updateTimer()
     
-/*
-    func nextRound()
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    // Utility Functions
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    
+    //Function to mutate specific characters in a string
+    func replaceStringChar(forString myString: String, atIndex index: Int, with newChar: String) -> String
     {
-        if question.questionsAsked >= question.questionsPerRound
+        var newString = ""
+        var count: Int = 0
+        
+        for character in myString.characters
         {
-            // Game is over
-            //displayScore() //will bring this back
-            print("This Game is Over")
-        } else {
-            // Continue game
-            displayQuestion()
-        }
-    }
- */
-    
-    //
-    
-    func displayQuestion()
-    {
-        question.newDisplayQuestion()
-        startScreenLabel1.isHidden = true
-        
-        questionNumberLabel.text = "Question \(question.questionsAsked)"
-        nextMoveButton.setTitle(" ", for: UIControlState())
-        questionNumberLabel.isHidden = false
-        questionField.isHidden = false
-        progressBar.isHidden = false
-        scoreLabel.isHidden = false
-        
-        ans1Button.isHidden = true
-        ans2Button.isHidden = true
-        ans3Button.isHidden = true
-        ans4Button.isHidden = true
-        
-        //Populate Question Field and Answer Fields with question information
-        for (key, value) in question.selectedQuestion
-        {
-            switch key
+            if count == index
             {
-            case "Question": questionField.text = value
-                print(value)
-                print(" ")
-            case "Ans 1": ans1Button.setTitle(value, for: UIControlState())
-            case "Ans 2": ans2Button.setTitle(value, for: UIControlState())
-            case "Ans 3": ans3Button.setTitle(value, for: UIControlState())
-            case "Ans 4": ans4Button.setTitle(value, for: UIControlState())
-            case "Cor Ans": corAnswer = value
-            default: print("unknown option")
+                newString += newChar
+            }else {
+                newString += String(character)
             }
+            count += 1
         }
-        //
-        ansVerify.isHidden = true
-        ansVerify2.isHidden = true
-        ansVerify3.isHidden = true
-        ansVerify4.isHidden = true
-        
-        ans1Button.isEnabled = true
-        ans2Button.isEnabled = true
-        ans3Button.isEnabled = true
-        ans4Button.isEnabled = true
-        
-        ans1Button.alpha = 1.0
-        ans2Button.alpha = 1.0
-        ans3Button.alpha = 1.0
-        ans4Button.alpha = 1.0
-        
-        correctAnsLabel1.isHidden = true
-        correctAnsLabel2.isHidden = true
-        correctAnsLabel3.isHidden = true
-        correctAnsLabel4.isHidden = true
-        
-        questionFrameLabel.isHidden =  true
-        questionFrameLabel2.isHidden = true
-        
-        //
-       
-        counter = Double(timePerQuestion)
-        timerLabel.text = "Timer: \(counter)"
-        progressBar.progress = 0.0
-        timerLabel.isHidden = false
-        
-        ans1Button.isHidden = false
-        ans2Button.isHidden = false
-        ans3Button.isHidden = false
-        ans4Button.isHidden = true
-        
-        if question.numberOfAnswerOptions == 4
-        {
-            questionFrameLabel.isHidden = false
-            ans4Button.isHidden = false
-            
-        }else //number of question options = 3
-        {
-            questionFrameLabel2.isHidden = false
-        }
-        
-        nextMoveButton.isHidden = false
-        nextMoveButton.setTitle("", for: UIControlState())
-        nextMoveButton.isEnabled = false
-    
-         //Start Timer
-        timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(ViewController.updateTimer), userInfo: nil, repeats: true)
-    }
-    
-
+        return newString
+    } // End func replaceStringChar
     
     
-    /*
-    func displayScore() {
-        // Hide the answer buttons
-        trueButton.isHidden = true
-        falseButton.isHidden = true
-        
-        // Display play again button
-        playAgainButton.isHidden = false
-        
-        questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
-        
-    }
-
+    func loadGameSounds()
+    {
+        loadGameStartSound()
+        loadCorrectAnswerSound()
+        loadWrongAnswerSound()
+        loadEndGameSound()
+        loadTimeUpSound()
+    } //End  func loadGameSounds()
     
-    func nextRound() {
-        if questionsAsked == questionsPerRound {
-            // Game is over
-            displayScore()
-        } else {
-            // Continue game
-            displayQuestion()
-        }
-    }
-    
-    @IBAction func playAgain() {
-        // Show the answer buttons
-        trueButton.isHidden = false
-        falseButton.isHidden = false
-        
-        questionsAsked = 0
-        correctQuestions = 0
-        nextRound()
-    }
-    
-
-    
-    // MARK: Helper Methods
-    
-    func loadNextRoundWithDelay(seconds: Int) {
-        // Converts a delay in seconds to nanoseconds as signed 64 bit integer
-        let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
-        // Calculates a time value to execute the method given current time and delay
-        let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
-        
-        // Executes the nextRound method at the dispatch time on the main queue
-        DispatchQueue.main.asyncAfter(deadline: dispatchTime) {
-            self.nextRound()
-        }
-    }
-     */
-    /*
-    func loadGameStartSound() 
-     {
-        //GameSound
-        //
-        let pathToSoundFile = Bundle.main.path(forResource: "GameSound", ofType: "wav")
-        let soundURL = URL(fileURLWithPath: pathToSoundFile!)
-        AudioServicesCreateSystemSoundID(soundURL as CFURL, &gameSound)
-    }
-    
-    func playGameStartSound() {
-        AudioServicesPlaySystemSound(gameSound)
-    }
- */
     
     func loadGameStartSound()
     {
-        //GameSound
-        //
+        //GameStartSound
         let pathToSoundFile = Bundle.main.path(forResource: "Pacman_Introduction_Music-KP-826387403", ofType: "wav")
         let soundURL = URL(fileURLWithPath: pathToSoundFile!)
         AudioServicesCreateSystemSoundID(soundURL as CFURL, &gameSound)
-    }
+        
+    } // End  func loadGameStartSound()
+    
     
     func playGameStartSound() {
         AudioServicesPlaySystemSound(gameSound)
-    }
+        
+    } // End func playGameStartSound()
+    
     
     func loadCorrectAnswerSound()
     {
-        //GameSound
-        //
+        //CorrectAnswerSound
         let pathToSoundFile = Bundle.main.path(forResource: "Metroid_Door-Brandino480-995195341", ofType: "wav")
         let soundURL = URL(fileURLWithPath: pathToSoundFile!)
         AudioServicesCreateSystemSoundID(soundURL as CFURL, &correctAnswerSound)
-    }
+        
+    } // End func loadCorrectAnswerSound()
     
     func playCorrectAnswerSound() {
         AudioServicesPlaySystemSound(correctAnswerSound)
@@ -742,8 +622,7 @@ class ViewController: UIViewController {
     
     func loadWrongAnswerSound()
     {
-        //GameSound
-        //
+        //WrongAnswerSound
         let pathToSoundFile = Bundle.main.path(forResource: "Alien Death Ray-SoundBible.com-1203224011", ofType: "wav")
         let soundURL = URL(fileURLWithPath: pathToSoundFile!)
         AudioServicesCreateSystemSoundID(soundURL as CFURL, &wrongAnswerSound)
@@ -755,8 +634,7 @@ class ViewController: UIViewController {
     
     func loadEndGameSound()
     {
-        //GameSound
-        //
+        //EndGameSound
         let pathToSoundFile = Bundle.main.path(forResource: "Electrical_Sweep-Sweeper-1760111493", ofType: "wav")
         let soundURL = URL(fileURLWithPath: pathToSoundFile!)
         AudioServicesCreateSystemSoundID(soundURL as CFURL, &endGameSound)
@@ -768,8 +646,7 @@ class ViewController: UIViewController {
     
     func loadTimeUpSound()
     {
-        //GameSound
-        //
+        //TimeUpSound
         let pathToSoundFile = Bundle.main.path(forResource: "Air Horn-SoundBible.com-964603082", ofType: "wav")
         let soundURL = URL(fileURLWithPath: pathToSoundFile!)
         AudioServicesCreateSystemSoundID(soundURL as CFURL, &timeUpSound)
@@ -778,6 +655,5 @@ class ViewController: UIViewController {
     func playTimeUpSound() {
         AudioServicesPlaySystemSound(timeUpSound)
     }
-
 }
 
